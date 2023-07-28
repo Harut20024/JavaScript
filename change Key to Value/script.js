@@ -1,16 +1,14 @@
-function Mag(obj){
-  const Keys = Object.keys(obj)
-  let NewObj = {}
-  Keys.forEach(function(key){
-    const Value = obj[key]
-    NewObj[Value]=key
-  })
-  return NewObj
-  
+function magic(obj) {
+  return Object.keys(obj).reduce(function (aggr, key) {
+    aggr[obj[key]] = key;
+    return aggr;
+  }, {});
 }
+
+
 arr = {
-    firstName: "Michael",
-    lastName: "Jackson"
+  firstName: "Michael",
+  lastName: "Jackson"
 };
 
-alert(JSON.stringify(Mag(arr)))
+alert(JSON.stringify(magic(arr)))
