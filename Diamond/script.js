@@ -1,32 +1,34 @@
-let input = +prompt("input number")
-let i
-function Diamond(num){
-  let result = ""
-  var SameNum = 1
-
-  for(i=1;i<=num;i++){
-      result += '*'
-      if(i%2!==0&&SameNum===i) {
-        if(i===1)result +="\n"
-        else result +="*\n"
-        SameNum = i+2
-        if(i===num-2) break
-        else i=1
-      }
-  }
-  debugger
-  SameNum = num
-  for(i=1;i<=num;i++){
-    result += '*'
-    if(SameNum===1) break
-    if(i%2!==0&&SameNum===i) {
-      if(i===5)result +="\n"
-      else result +="*\n"
-      SameNum = i-2
-      i=1
+function Spaces(num) {
+    let str = ""
+    for (let i = 0; i < num; i++) {
+        str += "-"
     }
+    return str
 }
-  return result
+function Adding(num) {
+    let str = ""
+    for (let i = 0; i < num; i++) {
+        str += "*"
+    }
+    return str
 }
 
-alert(Diamond(input))
+function Diamond(height) {
+    let str = ""
+    let Butoonspaces = height/2-1
+    for (let i = 1; i   <= height; i+=2) {
+        str +=Spaces(Butoonspaces)+Adding(i)+"\n"
+        Butoonspaces--
+    }
+    Butoonspaces = 1
+    for(let i = height-2; i >= 0; i-=2) {
+        str +=Spaces(Butoonspaces)+Adding(i)+"\n"
+        Butoonspaces++
+
+    }
+    return str
+}
+
+
+let InputNum = +prompt("input number")
+alert(Diamond(InputNum))
