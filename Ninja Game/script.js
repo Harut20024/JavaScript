@@ -86,7 +86,11 @@ function update() {
   
   data.enemyes = data.enemyes.filter(function(enemi) {
     if(enemi.deleteMe===true)Mises.innerHTML = MissesCount++
-    return (enemi.deleteMe !== true || enemi.deleteMee!== true)
+    return  enemi.deleteMee!== true
+  });
+
+  data.enemyes = data.enemyes.filter(function(enemi) {
+    return enemi.deleteMe !== true 
   });
 
   data.boolets.forEach(function (bullet) {
@@ -132,6 +136,12 @@ function loop() {
   if(ScoreCount === 30 ){
     alert("you win")
     ScoreCount = 0
+    location.reload();
+    
+  } 
+  if(MissesCount === 2 ){
+    alert("you Loose")
+    MissesCount = 0
     location.reload();
     
   } 
