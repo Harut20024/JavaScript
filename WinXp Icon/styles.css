@@ -1,0 +1,5 @@
+#MyCanvas {
+    background-image: url('Windows.png');
+    background-size: cover; /* Adjust as per your requirement */
+    background-repeat: no-repeat;
+}
