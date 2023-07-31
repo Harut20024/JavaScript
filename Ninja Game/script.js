@@ -6,6 +6,18 @@ let ScoreCount = 0
 let Mises = document.getElementById("missesValue")
 let MissesCount = 0
 
+let close = document.getElementsByClassName("closebtn");
+let i;
+
+//warnin function
+for (i = 0; i < close.length; i++) {
+  close[i].onclick = function(){
+    let div = this.parentElement;
+    div.style.opacity = "0";
+    setTimeout(function(){ div.style.display = "none"; }, 600);
+  }
+}
+
 const BackgraundImg = document.createElement("img")
 BackgraundImg.src = "backgraund.jpg"
 
@@ -48,7 +60,7 @@ let data = {
 //this function is to detect are objects hit each other
 function intersect(rect1, rect2) {
   const x = Math.max(rect1.x, rect2.x),
-      num1 = Math.min(rect1.x + rect1.width, rect2.x + rect2.width),
+      num1 = Math.min(rect1.x + rect1.width-20, rect2.x + rect2.width-20),
       y = Math.max(rect1.y, rect2.y),
       num2 = Math.min(rect1.y + rect1.height, rect2.y + rect2.height);
   return (num1 >= x && num2 >= y);
@@ -80,12 +92,12 @@ function update() {
   })
 
   data.boolets = data.boolets.filter(function(bullet) {
-    if(bullet.deleteMe===true)Score.innerHTML = ScoreCount++
+    if(bullet.deleteMe===true)Score.innerHTML = ScoreCount+=1
     return bullet.deleteMe !== true;
   });
   
   data.enemyes = data.enemyes.filter(function(enemi) {
-    if(enemi.deleteMe===true)Mises.innerHTML = MissesCount++
+    if(enemi.deleteMe===true)Mises.innerHTML = MissesCount+=1
     return  enemi.deleteMee!== true
   });
 
@@ -139,7 +151,7 @@ function loop() {
     location.reload();
     
   } 
-  if(MissesCount === 2 ){
+  if(MissesCount === 3 ){
     alert("you Loose")
     MissesCount = 0
     location.reload();
