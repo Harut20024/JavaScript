@@ -28,7 +28,7 @@ const NinjaStar = document.createElement("img")
 NinjaStar.src = "Star.png"
 
 const Enemy = document.createElement("img")
-Enemy.src = "Samurai.png"
+Enemy.src = "Knight.png"
 
 const AudioDefend = document.createElement("audio")
 AudioDefend.src = "Die.mp3"
@@ -38,6 +38,12 @@ BackGraundAudio.src = "forest.mp3"
 
 const Audio = document.createElement("audio")
 Audio.src = "Knife.mp3"
+
+const AudioJump = document.createElement("audio")
+AudioJump.src = "jump.mp3"
+
+const AudioJumpDown = document.createElement("audio")
+AudioJumpDown.src = "JumpDown.mp3"
 
 function myFunction(){
   location.reload();
@@ -49,9 +55,9 @@ let data = {
     xDelta: 0,
     yDelta: 0,
     x: 0,
-    y: 250,
-    width: 150,
-    height: 150
+    y: 270,
+    width: 130,
+    height: 130
   },
   boolets: [],
   enemyes: []
@@ -71,6 +77,18 @@ function update() {
 
   data.hero.y += data.hero.yDelta
 
+  if(data.hero.y<=20) {
+    data.hero.yDelta = 7
+  }
+  else if(data.hero.y>=270){
+    data.hero.yDelta = 0
+  } 
+  if(data.hero.y<270){
+    AudioJumpDown.currentTime = 0;
+    AudioJumpDown.play()
+  }
+
+
   data.boolets.forEach(function(bullet){
     data.enemyes.forEach(function(enemi){
      if(intersect(bullet,enemi)){
@@ -78,7 +96,7 @@ function update() {
       AudioDefend.currentTime = 0;
       AudioDefend.play()
       bullet.deleteMe = true
-      enemi.deleteMee = true
+      enemi.deleteMe1 = true
      }
     })
   })
@@ -98,7 +116,7 @@ function update() {
   
   data.enemyes = data.enemyes.filter(function(enemi) {
     if(enemi.deleteMe===true)Mises.innerHTML = MissesCount+=1
-    return  enemi.deleteMee!== true
+    return  enemi.deleteMe1!== true
   });
 
   data.enemyes = data.enemyes.filter(function(enemi) {
@@ -113,17 +131,23 @@ function update() {
     if(bullet.x>canvas.width) return false
     else  return true
   })
+  data.enemyes = data.enemyes.filter(function(enemi){
+    if(enemi.x<0) return false
+    else  return true
+  })
   data.enemyes.forEach(function(enemi){
     enemi.x += enemi.xDelta
   })
   if(data.enemyes.length===0 ) data.enemyes.push({
     xDelta: -1,
     x: canvas.width-100,
-    y: data.hero.y-10,
-    width: 100,
-    height: 130
+    y: 220,
+    width: 140,
+    height: 140
   })
+  if(data.hero.x<=-45) data.hero.x =-45
 
+  if(data.hero.x>=canvas.width-100) data.hero.x =canvas.width-100
 }
 
 function drow() {
@@ -163,6 +187,11 @@ document.addEventListener("keydown", function (evn) {
 
   if (evn.code === "ArrowRight") data.hero.xDelta = 5
   else if (evn.code === "ArrowLeft") data.hero.xDelta = -5
+  else if (evn.code === "ArrowUp"&&data.hero.y>20){
+    AudioJump.currentTime = 0;
+    AudioJump.play()
+    data.hero.yDelta = -10
+  } 
   else if(evn.code === "Space"){
    Audio.currentTime = 0;
     Audio.play()
@@ -179,6 +208,8 @@ document.addEventListener("keydown", function (evn) {
 
 document.addEventListener("keyup", function (evn) {
   data.hero.xDelta = 0
+  if(data.hero.y===250) data.hero.yDelta = 0
+  
 })
 
 loop()
