@@ -5,21 +5,26 @@ let xDelta = 6;
 let yDelta = 6;
 
 Canvas.style.backgroundColor = "lightblue";
+//Constructor function
+function CreatingBalls() {
+    this.x = Math.floor(Math.random() * Canvas.width)
+    this.y = Math.floor(Math.random() * Canvas.height)
+    this.Radius = Math.floor(Math.random() * 50)
+    this.fillStyle = getRandomColor()
+    this.xDelta = xDelta
+    this.yDelta = yDelta
+}
 
-Button.addEventListener("click", function() {
-  data.balls.push({
-    xDelta: xDelta, 
-    yDelta: yDelta,
-    x: Math.floor(Math.random() * Canvas.width),
-    y: Math.floor(Math.random() * Canvas.height),
-    Radius:  Math.floor(Math.random()*50),
-    fillStyle: getRandomColor()
-  });
-});
 
 let data = {
   balls: []
 };
+
+Button.addEventListener("click", function() {
+  const ball = new CreatingBalls() 
+  data.balls.push(ball);
+});
+
 
 function update() {
   data.balls.forEach(function(ball) {
@@ -38,8 +43,8 @@ function getRandomColor() {
     return color;
   }
 function draw() {
-  ctx.clearRect(0, 0, Canvas.width, Canvas.height);
-  data.balls.forEach(function(ball) {
+    ctx.clearRect(0, 0, Canvas.width, Canvas.height);
+    data.balls.forEach(function(ball) {
     ctx.fillStyle = ball.fillStyle
     ctx.beginPath();
     ctx.arc(ball.x, ball.y, ball.Radius, 0, 2 * Math.PI);
