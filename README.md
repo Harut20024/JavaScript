@@ -1,2 +1,2 @@
 ### JavaScript
-#This repository is for learning Java Script
+# This repository is for learning Java Script
