@@ -12,6 +12,8 @@ Button.addEventListener("click", function() {
     yDelta: yDelta,
     x: Math.floor(Math.random() * Canvas.width),
     y: Math.floor(Math.random() * Canvas.height),
+    Radius:  Math.floor(Math.random()*50),
+    fillStyle: getRandomColor()
   });
 });
 
@@ -21,8 +23,8 @@ let data = {
 
 function update() {
   data.balls.forEach(function(ball) {
-    if (ball.x > Canvas.width || ball.x < 0) ball.xDelta *= -1;
-    if (ball.y > Canvas.height || ball.y < 0) ball.yDelta *= -1;
+    if (ball.x+ball.Radius > Canvas.width || ball.x-ball.Radius < 0) ball.xDelta *= -1;
+    if (ball.y+ball.Radius > Canvas.height || ball.y-ball.Radius< 0) ball.yDelta *= -1;
     ball.x += ball.xDelta;
     ball.y += ball.yDelta;
   });
@@ -38,10 +40,9 @@ function getRandomColor() {
 function draw() {
   ctx.clearRect(0, 0, Canvas.width, Canvas.height);
   data.balls.forEach(function(ball) {
-
-    ctx.fillStyle = getRandomColor();
+    ctx.fillStyle = ball.fillStyle
     ctx.beginPath();
-    ctx.arc(ball.x, ball.y, 50, 0, 2 * Math.PI);
+    ctx.arc(ball.x, ball.y, ball.Radius, 0, 2 * Math.PI);
     ctx.fill();
   });
 }
