@@ -1,7 +1,10 @@
-<<<<<<< HEAD
 # JavaScript
-### This repository is for learning Java Script
-=======
-### JavaScript
-# This repository is for learning Java Script
->>>>>>> bf27d7b (adding canva file)
+
+## This repository is for learning Java Script
+
+## Here are folders where you can find my codes witch are write by JS and same css
+
+## here is my first written game ninja if you want play it,just git clone this repository and enjoy :D
+
+
+
