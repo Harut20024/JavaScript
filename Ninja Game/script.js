@@ -12,10 +12,6 @@ let i;
 const BackgraundImg = document.createElement("img")
 BackgraundImg.src = "backgraund.jpg"
 
-
-const Enemy = document.createElement("img")
-Enemy.src = "Knight.png"
-
 const AudioDefend = document.createElement("audio")
 AudioDefend.src = "Die.mp3"
 
@@ -26,6 +22,29 @@ const Audio = document.createElement("audio")
 Audio.src = "Knife.mp3"
 
 
+//construction of Enemy
+function Enemy(x, y, width, height) {
+  const EnemyImg = document.createElement("img");
+  EnemyImg.src = "Knight.png";
+
+  this.xDelta = -1
+  this.x = x;
+  this.y = y;
+  this.width = width;
+  this.height = height;
+  this.deleteMe = false;
+
+  this.update = () => {
+    this.x += this.xDelta;
+    if (this.deleteMe === true) {
+      Mises.innerHTML = MissesCount += 1;
+    }
+    return !(this.deleteMe === true || this.deleteMe1 === true || this.x < 0);
+  };
+  this.render = () => {
+    context.drawImage(EnemyImg, this.x, this.y, this.width, this.height);
+  };
+}
 
 //construction of bullet
 function Bullet(x, y, width, height) {
@@ -107,21 +126,23 @@ function Hero(x,y,width,height){
 
 
 let data = {
-  hero: new Hero(0,270,130,130),
+  hero: new Hero(0, 270, 130, 130),
   boolets: [],
-  enemyes: []
+  enemyes: [],
+  backgroundAudio: BackGraundAudio
+};
 
-}
 
 function update() {
-    //BackGraundAudio.play()
 
     if(ScoreCount === 30 ){
+      ScoreCount = 0
       alert("you win")
       location.reload();
       
     } 
-    if(MissesCount === 300 ){
+    if(MissesCount === 3 ){
+      MissesCount=0
       alert("you Loose")
       location.reload();
       
@@ -132,8 +153,8 @@ function update() {
     data.boolets.forEach(function(bullet){
     data.enemyes.forEach(function(enemi){
      if(intersect(bullet,enemi)){
-      // AudioDefend.currentTime = 0;
-      // AudioDefend.play()
+      AudioDefend.currentTime = 0;
+      AudioDefend.play()
       bullet.deleteMe = true
       enemi.deleteMe1 = true
      }
@@ -141,34 +162,22 @@ function update() {
   })
   data.enemyes.forEach(function(enemi){
     if(intersect(data.hero,enemi)){
-      // AudioDefend.currentTime = 0;
-      // AudioDefend.play()
+      AudioDefend.currentTime = 0;
+      AudioDefend.play()
       enemi.deleteMe = true
      }
   })
 
   data.enemyes = data.enemyes.filter(function(enemi) {
-    enemi.x += enemi.xDelta;
-
-    if (enemi.deleteMe === true) {
-        Mises.innerHTML = MissesCount += 1;
-    }
-    return !(enemi.deleteMe === true || enemi.deleteMe1 === true || enemi.x < 0)
-});
+    return enemi.update();
+  });
 
 
 data.boolets = data.boolets.filter(function (bullet) {
   return bullet.update();
 });
 
-
-  if(data.enemyes.length===0 ) data.enemyes.push({
-    xDelta: -1,
-    x: canvas.width-100,
-    y: 220,
-    width: 140,
-    height: 140
-  })
+  if(data.enemyes.length===0 ) data.enemyes.push(new Enemy(canvas.width-100,220,140,140))
 }
 
 function drow() {
@@ -181,15 +190,17 @@ function drow() {
   });
 
   data.enemyes.forEach(function (enemi) {
-    context.drawImage(Enemy, enemi.x, enemi.y, enemi.width, enemi.height);
+    enemi.render()
   });
 }
 
 function loop() {
-  requestAnimationFrame(loop)
-  update()
-  drow()
+  data.backgroundAudio.play(); 
+  requestAnimationFrame(loop);
+  update();
+  drow();
 }
+
 
 document.addEventListener("keydown", function (evn) {
 
@@ -214,9 +225,11 @@ document.addEventListener("keyup", function (evn) {
 
 
 
-function myFunction(){
+function myFunction() {
   location.reload();
+  data.backgroundAudio.pause(); 
 }
+
 
 //warnin function
 for (i = 0; i < close.length; i++) {
