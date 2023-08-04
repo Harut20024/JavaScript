@@ -1,253 +1,288 @@
-const canvas = document.getElementById("MyCanvas")
-const context = canvas.getContext("2d")
-let Score = document.getElementById("scoreValue")
-let ScoreCount = 0
+const canvas = document.getElementById("MyCanvas");
+const context = canvas.getContext("2d");
+let Score = document.getElementById("scoreValue");
+let ScoreCount = 0;
 
-let Mises = document.getElementById("missesValue")
-let MissesCount = 0
+let Mises = document.getElementById("missesValue");
+let MissesCount = 0;
 
 let close = document.getElementsByClassName("closebtn");
 let i;
 
-const BackgraundImg = document.createElement("img")
-BackgraundImg.src = "backgraund.jpg"
+const BackgraundImg = document.createElement("img");
+BackgraundImg.src = "backgraund.jpg";
 
-const AudioDefend = document.createElement("audio")
-AudioDefend.src = "Die.mp3"
-
-const BackGraundAudio = document.createElement("audio")
-BackGraundAudio.src = "forest.mp3"
-
-const Audio = document.createElement("audio")
-Audio.src = "Knife.mp3"
+const BackGraundAudio = document.createElement("audio");
+BackGraundAudio.src = "forest.mp3";
 
 
-//construction of Enemy
-function Enemy(x, y, width, height) {
-  const EnemyImg = document.createElement("img");
-  EnemyImg.src = "Knight.png";
+class GameObj {
+  constructor(x, y, width, height) {
+    this._x = x;
+    this._y = y;
+    this._width = width;
+    this._height = height;
 
-  this.xDelta = -1
-  this.x = x;
-  this.y = y;
-  this.width = width;
-  this.height = height;
-  this.deleteMe = false;
+    this._speed = 1;
+    this._xDelta = 0;
+    this._yDelta = 0;
 
-  this.update = () => {
-    this.x += this.xDelta;
-    if (this.deleteMe === true) {
+    this._img = document.createElement("img");
+    this._img.src = "";
+  }
+
+  getBoundingBox() {
+    return {
+      x: this._x,
+      y: this._y,
+      width: this._width,
+      height: this._height
+    };
+  }
+
+  update() {
+    this._x += this._xDelta;
+    this._y += this._yDelta;
+  }
+
+  render() {
+    context.drawImage(this._img, this._x, this._y, this._width, this._height);
+  }
+
+  goRight() {
+    this._xDelta = this._speed;
+  }
+
+  goLeft() {
+    this._xDelta = this._speed * -1;
+  }
+
+  stop() {
+    this._xDelta = 0;
+  }
+}
+
+class Hero extends GameObj {
+  constructor(x, y, width, height) {
+    super(x, y, width, height);
+    this._speed = 5;
+    this._shootInterval = 500; 
+    this._lastShootTime = 0; 
+
+    this._audioJumpDown = document.createElement("audio");
+    this._audioJumpDown.src = "JumpDown.mp3";
+
+    this._audioJump = document.createElement("audio");
+    this._audioJump.src = "jump.mp3";
+
+    this._img = document.createElement("img");
+    this._img.src = "ninja.png";
+
+    this._audio = document.createElement("audio");
+    this._audio.src = "Knife.mp3";
+  }
+  stopY() {
+    if (this._y === 250) this._yDelta = 0;
+  }
+
+  update() {
+    super.update();
+    if (this._x <= -45) this._x = -45;
+    if (this._x >= canvas.width - 100) this._x = canvas.width - 100;
+
+    if (this._y < 20) {
+      this._yDelta = 7;
+    } else if (this._y >= 270) {
+      this._yDelta = 0;
+    }
+    if (this._y < 270) {
+      this._audioJumpDown.currentTime = 0.5;
+      this._audioJumpDown.play();
+    }
+  }
+
+  jump() {
+    this._audioJump.currentTime = 0;
+    this._audioJump.play();
+    if (this._y > 20) this._yDelta = -10;
+    else this._yDelta = 7;
+  }
+
+  fire() {
+    const now = Date.now();
+    if (now - this._lastShootTime >= this._shootInterval) {
+      const x = this._x + this._width;
+      const y = this._y + this._height / 2;
+      const width = 20;
+      const height = 20;
+
+      const bullet = new Bullet(x, y, width, height);
+      bullet.goRight();
+      data.bullets.push(bullet);
+
+      this._audio.currentTime = 0;
+      this._audio.play();
+
+      this._lastShootTime = now; 
+    }
+  }
+
+}
+
+class Enemy extends GameObj {
+  constructor(x, y, width, height) {
+    super(x, y, width, height);
+
+    this._stabAudio = document.createElement("audio");
+    this._stabAudio.src = "Die.mp3";
+
+    this._img = document.createElement("img");
+    this._img.src = "Knight.png";
+  }
+
+  update() {
+    super.update();
+
+    if ((this._xDelta < 0 && this._x + this._width < 0) ||
+      (this._xDelta > 0 && this._x > canvas.width)) {
+      this.deleteMe = true;
+    }
+
+    if (intersect(this.getBoundingBox(), data.hero.getBoundingBox())) {
       Mises.innerHTML = MissesCount += 1;
+      this._stabAudio.currentTime = 0.1;
+      this._stabAudio.play();
+      this.die();
     }
-    return !(this.deleteMe === true || this.deleteMe1 === true || this.x < 0);
-  };
-  this.render = () => {
-    context.drawImage(EnemyImg, this.x, this.y, this.width, this.height);
-  };
-}
-
-//construction of bullet
-function Bullet(x, y, width, height) {
-  const NinjaStar = document.createElement("img");
-  NinjaStar.src = "Star.png";
-  this.xDelta = 10;
-  this.x = x;
-  this.y = y;
-  this.width = width;
-  this.height = height;
-  this.update = () => {
-    this.x += this.xDelta;
-    if (this.deleteMe === true) Score.innerHTML = ScoreCount += 1;
-    return this.x <= canvas.width && !this.deleteMe;
-  };
-  this.render = () => {
-    context.drawImage(NinjaStar, this.x, this.y, this.width, this.height);
-  };
-}
-//construction of Hero
-function Hero(x,y,width,height){
-  const AudioJump = document.createElement("audio")
-  AudioJump.src = "jump.mp3"
-
-  const AudioJumpDown = document.createElement("audio")
-  AudioJumpDown.src = "JumpDown.mp3"
-
-  const HeroImg = document.createElement("img")
-  HeroImg.src = "ninja.png"
-  this.x = x
-  this.y = y
-  this.width = width
-  this.height = height
-  let xDelta = 0;
-  let yDelta = 0;
-
-
-  this.update = () => {
-    this.x += xDelta;
-    this.y += yDelta;
-
-    if(this.x<=-45) this.x =-45
-    if(this.x>=canvas.width-100) this.x =canvas.width-100
-
-    if(this.y<=20) {
-      yDelta = 7
-    }
-    else if(this.y>=270){
-      yDelta = 0
-    } 
-    if(this.y<270){
-      AudioJumpDown.currentTime = 0.5;
-      AudioJumpDown.play()
-    }
-  };
-  
-  this.render = () => {
-    context.drawImage(HeroImg, this.x, this.y, width, height);
-  };
-  
-  this.goRight = () => {
-    xDelta = 5;
-  };
-  this.goLeft = () => {
-    xDelta = -5;
-  };
-  this.jump = () => {
-  AudioJump.currentTime = 0;
-  AudioJump.play()
-  yDelta = -10
   }
-  this.stopX = () => {
-    xDelta = 0;
-  }
-  this.stopY = () => {
-    if(data.hero.y===250) yDelta = 0;
+
+  die() {
+    this.deleteMe = true;
   }
 }
 
+
+class Bullet extends GameObj {
+  constructor(x, y, width, height) {
+    super(x, y, width, height);
+
+    this._speed = 10;
+
+    this._img = document.createElement("img");
+    this._img.src = "Star.png";
+
+    this._stabAudio = document.createElement("audio");
+    this._stabAudio.src = "Die.mp3";
+  }
+
+  update() {
+    super.update();
+
+    if ((this._xDelta < 0 && this._x + this._width < 0) ||
+      (this._xDelta > 0 && this._x > canvas.width)) {
+      this.deleteMe = true;
+    }
+
+    data.enemies.forEach((enemy) => {
+      if (intersect(this.getBoundingBox(), enemy.getBoundingBox())) {
+        enemy.die();
+        Score.innerHTML = ScoreCount += 1;
+        this._stabAudio.currentTime = 0.1;
+        this._stabAudio.play();
+        this.deleteMe = true;
+      }
+    });
+  }
+}
 
 let data = {
   hero: new Hero(0, 270, 130, 130),
-  boolets: [],
-  enemyes: [],
+  bullets: [],
+  enemies: [],
   backgroundAudio: BackGraundAudio
 };
 
-
 function update() {
+  if (ScoreCount === 30) {
+    ScoreCount = 0;
+    alert("you win");
+    location.reload();
+  }
+  if (MissesCount === 3) {
+    MissesCount = 0;
+    alert("you Loose");
+    location.reload();
+  }
 
-    if(ScoreCount === 30 ){
-      ScoreCount = 0
-      alert("you win")
-      location.reload();
-      
-    } 
-    if(MissesCount === 3 ){
-      MissesCount=0
-      alert("you Loose")
-      location.reload();
-      
-    } 
-    
-    data.hero.update()
+  data.hero.update();
+  data.enemies.forEach((enemy) => enemy.update());
+  data.bullets.forEach((bullet) => bullet.update());
 
-    data.boolets.forEach(function(bullet){
-    data.enemyes.forEach(function(enemi){
-     if(intersect(bullet,enemi)){
-      AudioDefend.currentTime = 0;
-      AudioDefend.play()
-      bullet.deleteMe = true
-      enemi.deleteMe1 = true
-     }
-    })
-  })
-  data.enemyes.forEach(function(enemi){
-    if(intersect(data.hero,enemi)){
-      AudioDefend.currentTime = 0;
-      AudioDefend.play()
-      enemi.deleteMe = true
-     }
-  })
+  data.bullets = data.bullets.filter((bullet) => !bullet.deleteMe);
+  data.enemies = data.enemies.filter((enemy) => !enemy.deleteMe);
 
-  data.enemyes = data.enemyes.filter(function(enemi) {
-    return enemi.update();
-  });
-
-
-data.boolets = data.boolets.filter(function (bullet) {
-  return bullet.update();
-});
-
-  if(data.enemyes.length===0 ) data.enemyes.push(new Enemy(canvas.width-100,220,140,140))
-}
-
-function drow() {
-  context.drawImage(BackgraundImg, 0, 0, canvas.width, canvas.height);
-
-  data.hero.render();
-
-  data.boolets.forEach(function (bullet) {
-    bullet.render();
-  });
-
-  data.enemyes.forEach(function (enemi) {
-    enemi.render()
-  });
-}
-
-function loop() {
-  data.backgroundAudio.play(); 
-  requestAnimationFrame(loop);
-  update();
-  drow();
-}
-
-
-document.addEventListener("keydown", function (evn) {
-
-  if (evn.code === "ArrowRight")  data.hero.goRight()
-  else if (evn.code === "ArrowLeft")  data.hero.goLeft()
-  else if (evn.code === "ArrowUp"&&data.hero.y>20) data.hero.jump()
-  else if(evn.code === "Space"){
-   Audio.currentTime = 0;
-    Audio.play()
-    data.boolets.push(new Bullet(data.hero.x + data.hero.width,data.hero.y + data.hero.height/2,20,20))
-  } 
-
-})
-document.addEventListener("keyup", function (evn) {
-  data.hero.stopX();
-  data.hero.stopY()
-})
-
-
-
-
-
-
-
-function myFunction() {
-  location.reload();
-  data.backgroundAudio.pause(); 
-}
-
-
-//warnin function
-for (i = 0; i < close.length; i++) {
-  close[i].onclick = function(){
-    let div = this.parentElement;
-    div.style.opacity = "0";
-    setTimeout(function(){ div.style.display = "none"; }, 600);
+  if (data.enemies.length === 0) {
+    const enemy = new Enemy(canvas.width - 100, 240, 140, 140);
+    enemy.goLeft();
+    data.enemies.push(enemy);
   }
 }
 
-//this function is to detect are objects hit each other
+function draw() {
+  context.drawImage(BackgraundImg, 0, 0, canvas.width, canvas.height);
+  data.hero.render();
+  data.bullets.forEach((bullet) => bullet.render());
+  data.enemies.forEach((enemy) => enemy.render());
+}
+
+function loop() {
+  data.backgroundAudio.play();
+  requestAnimationFrame(loop);
+  update();
+  draw();
+}
+
+document.addEventListener("keydown", (evt) => {
+  if (evt.code === "ArrowRight") {
+    data.hero.goRight();
+  } else if (evt.code === "ArrowLeft") {
+    data.hero.goLeft();
+  } else if (evt.code === "ArrowUp") {
+    data.hero.jump();
+  } else if (evt.code === "Space") {
+    data.hero.fire();
+  }
+});
+
+document.addEventListener("keyup", () => {
+  data.hero.stop();
+  data.hero.stopY();
+});
+
+////////////////////////////////////////////////////
+
+function myFunction() {
+  location.reload();
+  data.backgroundAudio.pause();
+}
+
+//warning function
+for (i = 0; i < close.length; i++) {
+  close[i].onclick = function() {
+    let div = this.parentElement;
+    div.style.opacity = "0";
+    setTimeout(function() { div.style.display = "none"; }, 600);
+  };
+}
+
+//this function is to detect if objects hit each other
 function intersect(rect1, rect2) {
   const x = Math.max(rect1.x, rect2.x),
-      num1 = Math.min(rect1.x + rect1.width-20, rect2.x + rect2.width-20),
-      y = Math.max(rect1.y, rect2.y),
-      num2 = Math.min(rect1.y + rect1.height, rect2.y + rect2.height);
-  return (num1 >= x && num2 >= y);
-};
+    num1 = Math.min(rect1.x + rect1.width - 20, rect2.x + rect2.width - 20),
+    y = Math.max(rect1.y, rect2.y),
+    num2 = Math.min(rect1.y + rect1.height, rect2.y + rect2.height);
+  return num1 >= x && num2 >= y;
+}
 
-//running programm
-loop()
+//running program
+loop();
