@@ -1,10 +1,10 @@
 const canvas = document.getElementById("MyCanvas");
 const context = canvas.getContext("2d");
 let Score = document.getElementById("scoreValue");
-let ScoreCount = 0;
-
 let Mises = document.getElementById("missesValue");
+let ScoreCount = 0;
 let MissesCount = 0;
+let Starscount = 7;
 
 let close = document.getElementsByClassName("closebtn");
 let i;
@@ -75,8 +75,11 @@ class Hero extends GameObj {
     this._audioJump = document.createElement("audio");
     this._audioJump.src = "jump.mp3";
 
-    this._img = document.createElement("img");
-    this._img.src = "ninja.png";
+    this._img2 = document.createElement("img");
+    this._img2.src = "ninja.png";
+
+    this._img1 = document.createElement("img");
+    this._img1.src = "ninja1.png";
 
     this._audio = document.createElement("audio");
     this._audio.src = "Knife.mp3";
@@ -84,7 +87,18 @@ class Hero extends GameObj {
   stopY() {
     if (this._y === 250) this._yDelta = 0;
   }
-
+  render() {
+    super.render();
+    const enemies = data.objects.filter(obj => obj instanceof Enemy);
+      enemies.forEach((enemy) => {
+        if (this._x > enemy._x) {
+          context.drawImage(this._img1, this._x, this._y, this._width, this._height);
+        } else {
+          context.drawImage(this._img2, this._x, this._y, this._width, this._height);
+        }
+      });
+    
+  }
   update() {
     super.update();
     if (this._x <= -45) this._x = -45;
@@ -102,7 +116,7 @@ class Hero extends GameObj {
   }
 
   jump() {
-    this._audioJump.currentTime = 0;
+    this._audioJump.currentTime = 0.05;
     this._audioJump.play();
     if (this._y > 20) this._yDelta = -10;
     else this._yDelta = 7;
@@ -110,28 +124,37 @@ class Hero extends GameObj {
 
   fire() {
     const now = Date.now();
-    if (now - this._lastShootTime >= this._shootInterval) {
+    if (now - this._lastShootTime >= this._shootInterval && Starscount>0) {
+      removeStar(); 
+      Starscount -= 1;
       const x = this._x + this._width;
       const y = this._y + this._height / 2;
-      const width = 20;
+      const width = 20; 
       const height = 20;
 
       const bullet = new Bullet(x, y, width, height);
-      bullet.goRight();
-      data.bullets.push(bullet);
+      const enemies = data.objects.filter(obj => obj instanceof Enemy);
+
+      enemies.forEach((enemy) => {
+        if (this._x > enemy._x) {
+            bullet.goLeft()
+        } else {
+            bullet.goRight();
+          }
+        });
+      data.objects.push(bullet);
 
       this._audio.currentTime = 0;
       this._audio.play();
-
       this._lastShootTime = now; 
     }
-  }
-
+}
 }
 
 class Enemy extends GameObj {
   constructor(x, y, width, height) {
     super(x, y, width, height);
+    this._speed = 3;
 
     this._stabAudio = document.createElement("audio");
     this._stabAudio.src = "Die.mp3";
@@ -147,13 +170,15 @@ class Enemy extends GameObj {
       (this._xDelta > 0 && this._x > canvas.width)) {
       this.deleteMe = true;
     }
-
-    if (intersect(this.getBoundingBox(), data.hero.getBoundingBox())) {
-      Mises.innerHTML = MissesCount += 1;
-      this._stabAudio.currentTime = 0.1;
-      this._stabAudio.play();
-      this.die();
-    }
+    const hero = data.objects.filter(obj => obj instanceof Hero);
+    hero.forEach((hero) => {
+      if (intersect(this.getBoundingBox(),hero.getBoundingBox())) {
+        Mises.innerHTML = MissesCount += 1;
+        this._stabAudio.currentTime = 0.1;
+        this._stabAudio.play();
+        this.die();
+      }
+    })
   }
 
   die() {
@@ -182,8 +207,8 @@ class Bullet extends GameObj {
       (this._xDelta > 0 && this._x > canvas.width)) {
       this.deleteMe = true;
     }
-
-    data.enemies.forEach((enemy) => {
+    const enemies = data.objects.filter(obj => obj instanceof Enemy);
+    enemies.forEach((enemy) => {
       if (intersect(this.getBoundingBox(), enemy.getBoundingBox())) {
         enemy.die();
         Score.innerHTML = ScoreCount += 1;
@@ -195,15 +220,16 @@ class Bullet extends GameObj {
   }
 }
 
+
+
+//main code
 let data = {
-  hero: new Hero(0, 270, 130, 130),
-  bullets: [],
-  enemies: [],
+  objects: [new Hero(0, 270, 130, 130)],
   backgroundAudio: BackGraundAudio
 };
 
 function update() {
-  if (ScoreCount === 30) {
+  if (ScoreCount === 5) {
     ScoreCount = 0;
     alert("you win");
     location.reload();
@@ -214,25 +240,21 @@ function update() {
     location.reload();
   }
 
-  data.hero.update();
-  data.enemies.forEach((enemy) => enemy.update());
-  data.bullets.forEach((bullet) => bullet.update());
+  data.objects.forEach((obj) => obj.update());
 
-  data.bullets = data.bullets.filter((bullet) => !bullet.deleteMe);
-  data.enemies = data.enemies.filter((enemy) => !enemy.deleteMe);
-
-  if (data.enemies.length === 0) {
-    const enemy = new Enemy(canvas.width - 100, 240, 140, 140);
-    enemy.goLeft();
-    data.enemies.push(enemy);
+  data.objects = data.objects.filter((obj) => obj.deleteMe !== true);
+  
+  const enemies = data.objects.filter(obj => obj instanceof Enemy);
+  if (enemies.length === 0) {
+    const enemie = new Enemy(canvas.width - 100, 240, 140, 140);
+    enemie.goLeft();
+    data.objects.push(enemie);
   }
 }
 
 function draw() {
   context.drawImage(BackgraundImg, 0, 0, canvas.width, canvas.height);
-  data.hero.render();
-  data.bullets.forEach((bullet) => bullet.render());
-  data.enemies.forEach((enemy) => enemy.render());
+  data.objects.forEach(obj => obj.render());
 }
 
 function loop() {
@@ -240,30 +262,36 @@ function loop() {
   requestAnimationFrame(loop);
   update();
   draw();
+  createStars(Starscount)
 }
 
 document.addEventListener("keydown", (evt) => {
+  const hero = data.objects.find(obj => obj instanceof Hero);
   if (evt.code === "ArrowRight") {
-    data.hero.goRight();
+    hero.goRight();
   } else if (evt.code === "ArrowLeft") {
-    data.hero.goLeft();
+    hero.goLeft();
   } else if (evt.code === "ArrowUp") {
-    data.hero.jump();
+    hero.jump();
   } else if (evt.code === "Space") {
-    data.hero.fire();
+    if(Starscount>0){
+      hero.fire();
+    }
   }
 });
 
 document.addEventListener("keyup", () => {
-  data.hero.stop();
-  data.hero.stopY();
+  const hero = data.objects.find(obj => obj instanceof Hero);
+  hero.stop();
+  hero.stopY();
 });
 
 ////////////////////////////////////////////////////
+//here are functions witch are used
 
 function myFunction() {
-  location.reload();
   data.backgroundAudio.pause();
+  location.reload();
 }
 
 //warning function
@@ -275,6 +303,24 @@ for (i = 0; i < close.length; i++) {
   };
 }
 
+
+//this function is creating stars and adding into html code
+function createStars(count) {
+  const starContainer = document.getElementById("starContainer");
+  starContainer.innerHTML = ""; 
+  for (let i = 0; i < count; i++) {
+    const star = document.createElement("img");
+    star.src = "Star.png"; 
+    starContainer.appendChild(star);
+  }
+}
+//when you call this function it delete one of stars
+function removeStar() {
+  const stars = starContainer.getElementsByTagName("img");
+  if (stars.length > 0) {
+      starContainer.removeChild(stars[0]);
+  }
+}
 //this function is to detect if objects hit each other
 function intersect(rect1, rect2) {
   const x = Math.max(rect1.x, rect2.x),
@@ -286,3 +332,4 @@ function intersect(rect1, rect2) {
 
 //running program
 loop();
+

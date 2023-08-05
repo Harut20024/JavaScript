@@ -9,15 +9,16 @@
 </head>
 <body>
     <div class="score-container">
-        Score: <span id="scoreValue">0</span>
-        Misses: <span id="missesValue">0</span>
-    </div>
+        <span class="label">Score:</span> <span id="scoreValue">0</span> |
+        <span class="label">Misses:</span> <span id="missesValue">0</span> |
+        <span class="label">Count of Stars:</span> <span id="starContainer"></span>|
+      </div>
+      
    <canvas id = "MyCanvas" width="1000" height="500"></canvas>
    <br>
-
    <div class="alert warning">
     <span class="closebtn">&times;</span>  
-    <strong>Warning!</strong> <br>If you missed 3 times you loose <br> If you hit 30 times you win
+    <strong>Warning!</strong> <br>If you missed 3 times you loose <br> If you hit 5 times you win
   </div>
   <button type="button" class="button-87" onclick="myFunction()">RESTART</button>
    <script src="script.js"></script>
