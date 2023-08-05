@@ -67,15 +67,9 @@
   }
   
 
-/* Custom fonts */
-@font-face {
-  font-family: 'AncientRomeFont';
-  src: url('path/to/ancient_rome_font.woff') format('woff');
-}
-
 body {
   font-family: 'AncientRomeFont', sans-serif; /* Use the custom font */
-  background-image: url('NInjaGame.jpg');
+  background-image: url('Photos/NInjaGame.jpg');
   background-size: cover; /* Adjust the image size to cover the whole body */
   background-position: center; /* Center the image */
   background-repeat: no-repeat;  

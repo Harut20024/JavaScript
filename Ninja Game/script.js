@@ -10,10 +10,10 @@ let close = document.getElementsByClassName("closebtn");
 let i;
 
 const BackgraundImg = document.createElement("img");
-BackgraundImg.src = "backgraund.jpg";
+BackgraundImg.src = "Photos/backgraund.jpg";
 
 const BackGraundAudio = document.createElement("audio");
-BackGraundAudio.src = "forest.mp3";
+BackGraundAudio.src = "Song/forest.mp3";
 
 
 class GameObj {
@@ -70,19 +70,19 @@ class Hero extends GameObj {
     this._lastShootTime = 0; 
 
     this._audioJumpDown = document.createElement("audio");
-    this._audioJumpDown.src = "JumpDown.mp3";
+    this._audioJumpDown.src = "Song/JumpDown.mp3";
 
     this._audioJump = document.createElement("audio");
-    this._audioJump.src = "jump.mp3";
+    this._audioJump.src = "Song/jump.mp3";
 
     this._img2 = document.createElement("img");
-    this._img2.src = "ninja.png";
+    this._img2.src = "Photos/ninja.png";
 
     this._img1 = document.createElement("img");
-    this._img1.src = "ninja1.png";
+    this._img1.src = "Photos/ninja1.png";
 
     this._audio = document.createElement("audio");
-    this._audio.src = "Knife.mp3";
+    this._audio.src = "Song/Knife.mp3";
   }
   stopY() {
     if (this._y === 250) this._yDelta = 0;
@@ -157,10 +157,10 @@ class Enemy extends GameObj {
     this._speed = 3;
 
     this._stabAudio = document.createElement("audio");
-    this._stabAudio.src = "Die.mp3";
+    this._stabAudio.src = "Song/Die.mp3";
 
     this._img = document.createElement("img");
-    this._img.src = "Knight.png";
+    this._img.src = "Photos/Knight.png";
   }
 
   update() {
@@ -197,10 +197,10 @@ class Bullet extends GameObj {
     this._speed = 10;
 
     this._img = document.createElement("img");
-    this._img.src = "Star.png";
+    this._img.src = "Photos/Star.png";
 
     this._stabAudio = document.createElement("audio");
-    this._stabAudio.src = "Die.mp3";
+    this._stabAudio.src = "Song/Die.mp3";
   }
 
   update() {
@@ -321,7 +321,7 @@ function createStars(count) {
   starContainer.innerHTML = ""; 
   for (let i = 0; i < count; i++) {
     const star = document.createElement("img");
-    star.src = "Star.png"; 
+    star.src = "Photos/Star.png"; 
     starContainer.appendChild(star);
   }
 }
@@ -338,7 +338,7 @@ function createHearth(count) {
   hearthContainer.innerHTML = ""; 
   for (let i = 0; i < count; i++) {
     const star = document.createElement("img");
-    star.src = "heart.png"; 
+    star.src = "Photos/heart.png"; 
     hearthContainer.appendChild(star);
   }
 }
