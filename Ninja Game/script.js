@@ -3,7 +3,7 @@ const context = canvas.getContext("2d");
 let Score = document.getElementById("scoreValue");
 let Mises = document.getElementById("missesValue");
 let ScoreCount = 0;
-let MissesCount = 0;
+let MissesCount = 3;
 let Starscount = 7;
 
 let close = document.getElementsByClassName("closebtn");
@@ -172,8 +172,11 @@ class Enemy extends GameObj {
     }
     const hero = data.objects.filter(obj => obj instanceof Hero);
     hero.forEach((hero) => {
-      if (intersect(this.getBoundingBox(),hero.getBoundingBox())) {
-        Mises.innerHTML = MissesCount += 1;
+      if (intersect(this.getBoundingBox(), hero.getBoundingBox())) {
+        if (MissesCount > 0) {
+          MissesCount -= 1;
+          removHearth();
+        }
         this._stabAudio.currentTime = 0.1;
         this._stabAudio.play();
         this.die();
@@ -234,9 +237,9 @@ function update() {
     ScoreCount = 0;
     location.reload();
   }
-  if (MissesCount === 3) {
+  if (MissesCount === 0) {
     alert("you Loose");
-    MissesCount = 0;
+    MissesCount = 3;
     location.reload();
   }
 
@@ -263,6 +266,7 @@ function loop() {
   update();
   draw();
   createStars(Starscount)
+  createHearth(MissesCount)
 }
 
 document.addEventListener("keydown", (evt) => {
@@ -321,6 +325,25 @@ function removeStar() {
       starContainer.removeChild(stars[0]);
   }
 }
+//this function is creating stars and adding into html code
+function createHearth(count) {
+  const hearthContainer = document.getElementById("missesValue");
+  hearthContainer.innerHTML = ""; 
+  for (let i = 0; i < count; i++) {
+    const star = document.createElement("img");
+    star.src = "heart.png"; 
+    hearthContainer.appendChild(star);
+  }
+}
+//when you call this function it delete one of stars
+function removHearth() {
+  const hearthContainer = document.getElementById("missesValue");
+  const hearth = hearthContainer.getElementsByTagName("img");
+  if (hearth.length > 0 && MissesCount >= 0) {
+    hearthContainer.removeChild(hearth[hearth.length - 1]);
+  }
+}
+
 //this function is to detect if objects hit each other
 function intersect(rect1, rect2) {
   if(rect1.width>120 && rect2.width>120){
