@@ -230,12 +230,12 @@ let data = {
 
 function update() {
   if (ScoreCount === 5) {
-    ScoreCount = 0;
+    context.clearRect(0, 0, canvas.width, canvas.height);
     alert("you win");
     location.reload();
   }
-  if (MissesCount === 3) {
-    MissesCount = 0;
+  if(MissesCount === 3) {
+    context.clearRect(0, 0, canvas.width, canvas.height);
     alert("you Loose");
     location.reload();
   }
