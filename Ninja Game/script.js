@@ -230,13 +230,13 @@ let data = {
 
 function update() {
   if (ScoreCount === 5) {
-    ScoreCount = 0;
     alert("you win");
+    ScoreCount = 0;
     location.reload();
   }
   if (MissesCount === 3) {
-    MissesCount = 0;
     alert("you Loose");
+    MissesCount = 0;
     location.reload();
   }
 
@@ -323,11 +323,20 @@ function removeStar() {
 }
 //this function is to detect if objects hit each other
 function intersect(rect1, rect2) {
+  if(rect1.width>120 && rect2.width>120){
   const x = Math.max(rect1.x, rect2.x),
-    num1 = Math.min(rect1.x + rect1.width - 20, rect2.x + rect2.width - 20),
+    num1 = Math.min(rect1.x + rect1.width, rect2.x + rect2.width)-80,
+    y = Math.max(rect1.y, rect2.y),
+    num2 = Math.min(rect1.y + rect1.height, rect2.y + rect2.height)-50;
+  return num1 >= x && num2 >= y;
+  }
+  else{
+    const x = Math.max(rect1.x, rect2.x),
+    num1 = Math.min(rect1.x + rect1.width, rect2.x + rect2.width),
     y = Math.max(rect1.y, rect2.y),
     num2 = Math.min(rect1.y + rect1.height, rect2.y + rect2.height);
   return num1 >= x && num2 >= y;
+  }
 }
 
 //running program
