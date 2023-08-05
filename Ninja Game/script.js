@@ -234,15 +234,22 @@ let data = {
 function update() {
   if (ScoreCount === 5) {
     alert("you win");
-    ScoreCount = 0;
+    ScoreCount = 6;
     location.reload();
-  }
-  if (MissesCount === 0) {
+  } else if (MissesCount === 0) {
     alert("you Loose");
     MissesCount = 3;
     location.reload();
+  } else if (Starscount === 0 && ScoreCount < 5) {
+    setTimeout(() => {
+      if (ScoreCount < 5) {
+        alert("you Loose");
+        Starscount = -1;
+      }
+    }, 3000); 
+    location.reload();
   }
-
+  
   data.objects.forEach((obj) => obj.update());
 
   data.objects = data.objects.filter((obj) => obj.deleteMe !== true);
