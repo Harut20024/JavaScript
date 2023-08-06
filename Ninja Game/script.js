@@ -282,7 +282,7 @@ class Bullet extends GameObj {
 
 //main code
 let data = {
-  objects: [new Hero(0, 270, 130, 130), new Bottle(240, 325, 50, 50)],
+  objects: [new Hero(0, 270, 130, 130), new Bottle(300, 325, 50, 50)],
   backgroundAudio: BackGraundAudio
 };
 
@@ -379,7 +379,7 @@ for (i = 0; i < close.length; i++) {
   };
 }
 
-let volume = 0.7;
+let volume = 0.28;
 BackGraundAudio.volume = volume;
 
 volumeSlider.addEventListener("input", () => {
