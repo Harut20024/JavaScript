@@ -9,6 +9,8 @@ let Starscount = 7;
 let i;
 let changeArmor = 80
 let drink = false
+let rainPosY = 0;
+const rainSpeed = 1;
 
 let close = document.getElementsByClassName("closebtn");
 
@@ -24,6 +26,8 @@ Shield.src = "Photos/shield.png";
 const BackGraundAudio = document.createElement("audio");
 BackGraundAudio.src = "Song/forest.mp3";
 
+const rainfoto = document.createElement("img");
+rainfoto.src = "Photos/rain.png";
 
 class GameObj {
   constructor(x, y, width, height) {
@@ -320,6 +324,11 @@ function update() {
 
 function draw() {
   context.drawImage(BackgraundImg, 0, 0, canvas.width, canvas.height);
+  rainPosY += rainSpeed;
+  if (rainPosY >= canvas.height-470) {
+    rainPosY = 10; 
+  }
+  context.drawImage(rainfoto, 0, rainPosY, canvas.width, canvas.height-140);
   context.drawImage(Shield, 10, 10, 30, 30);
 
   context.fillStyle = "gray";
