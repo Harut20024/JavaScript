@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+
+        function job(state) {
+            return new Promise(function(resolve, reject) {
+                if (state) {
+                    resolve('success');
+                } else {
+                    reject('error');
+                }
+            });
+        }
+    
+        job(true).then(function(data) {
+            console.log(data); // sucsess
+            return job(true);
+        }).then(function(data) {
+            if (data !== 'victory') {
+                throw 'Defeat';  //throw defeat(value) փոխանցում է
+            }
+            return job(true);
+        }).then(function(data) {
+            console.log(data); // becouse there are throw it donw work
+        }).catch(function(error) { //  defeat
+            console.log(error);
+            return job(false);
+        }).then(function(data) { //nothing just passed
+            console.log(data);
+            return job(true);
+        }).catch(function(error) { // error 
+            console.log(error);
+            return 'Error caught';
+        }).then(function(data) { //error caught
+            console.log(data);
+            return new Error('test'); //it return but not throw
+        }).then(function(data) {
+            console.log('Success:', data.message); //sucsess test 
+        }).catch(function(data) {
+            console.log('Error:', data.message); //donr work
+        });
+
+    </script>
+</body>
+</html>

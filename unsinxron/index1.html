@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        function func1() {
+            return new Promise((resolve, reject) => {
+              setTimeout(() => resolve(2), 1000);
+            });
+          }
+          function func2(val) {
+            return new Promise((resolve, reject) => {
+              setTimeout(() => resolve(val + 3), 1000);
+            });
+          }
+          function func3(val) {
+            return new Promise((resolve, reject) => {
+              setTimeout(() => resolve(val + 4), 1000);
+            });
+          }
+          
+          func1()
+              .then((result) => func2(result))//it give to func2 2 and return 5
+            .catch((error) => 5) //it just pass here  
+            .then((result) => {
+              alert(result);    //it alert 5 
+                throw new Error("oops"); //and return error 
+             })
+            .then((result) => func3(result)) //it give nothing 
+            .catch((error) => func3(2))  //it return 6 after minute 
+            .then((result) => func2(result)) //it return 9 after minute 
+            .then((result) => alert(result)); //it alert 9
+          
+    </script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        function func(x, y) {
+            const a = x + 2
+            const b = y + 2
+            const c = a + b
+
+            return new Promise(function (resolve, reject) {
+                setTimeout(function () {
+                    if (c > 5) resolve(c * 2)
+                    else reject(new Error("oooppppsssss"))
+
+                }, 1000)
+            })
+        }
+
+        function func2(answ) {
+            return new Promise(function (resolve, reject) {
+                setTimeout(function () {
+                    resolve(`your answer is ${answ}`)
+
+                }, 2000)
+            })
+        }
+
+        const answer = func(2, 4)
+
+        //if there are any answer it give back
+        answer.then(function (result) {
+            alert(result)
+            return func2(result)
+            })
+            .then(function (result) {
+                alert(result)
+            })
+            .then(function (result) {
+                throw new Error("OOpppsssss")
+            })
+            //if it havnt any answer
+            .catch(function (anw) {
+                alert(anw)
+                return  "I will back"
+            })
+            .then(function (result) {
+                alert(result)
+            })
+
+    </script>
+</body>
+
+</html>
