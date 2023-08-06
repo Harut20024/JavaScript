@@ -2,15 +2,24 @@ const canvas = document.getElementById("MyCanvas");
 const context = canvas.getContext("2d");
 let Score = document.getElementById("scoreValue");
 let Mises = document.getElementById("missesValue");
+//this is variables for same aniamtions
 let ScoreCount = 0;
 let MissesCount = 3;
 let Starscount = 7;
+let i;
+let changeArmor = 80
+let drink = false
 
 let close = document.getElementsByClassName("closebtn");
-let i;
+
+
+const volumeSlider = document.getElementById("volumeSlider");
 
 const BackgraundImg = document.createElement("img");
 BackgraundImg.src = "Photos/backgraund.jpg";
+
+const Shield = document.createElement("img");
+Shield.src = "Photos/shield.png";
 
 const BackGraundAudio = document.createElement("audio");
 BackGraundAudio.src = "Song/forest.mp3";
@@ -66,8 +75,8 @@ class Hero extends GameObj {
   constructor(x, y, width, height) {
     super(x, y, width, height);
     this._speed = 5;
-    this._shootInterval = 500; 
-    this._lastShootTime = 0; 
+    this._shootInterval = 500;
+    this._lastShootTime = 0;
 
     this._audioJumpDown = document.createElement("audio");
     this._audioJumpDown.src = "Song/JumpDown.mp3";
@@ -90,14 +99,14 @@ class Hero extends GameObj {
   render() {
     super.render();
     const enemies = data.objects.filter(obj => obj instanceof Enemy);
-      enemies.forEach((enemy) => {
-        if (this._x > enemy._x) {
-          context.drawImage(this._img1, this._x, this._y, this._width, this._height);
-        } else {
-          context.drawImage(this._img2, this._x, this._y, this._width, this._height);
-        }
-      });
-    
+    enemies.forEach((enemy) => {
+      if (this._x > enemy._x) {
+        context.drawImage(this._img1, this._x, this._y, this._width, this._height);
+      } else {
+        context.drawImage(this._img2, this._x, this._y, this._width, this._height);
+      }
+    });
+
   }
   update() {
     super.update();
@@ -124,12 +133,12 @@ class Hero extends GameObj {
 
   fire() {
     const now = Date.now();
-    if (now - this._lastShootTime >= this._shootInterval && Starscount>0) {
-      removeStar(); 
+    if (now - this._lastShootTime >= this._shootInterval && Starscount > 0) {
+      removeStar();
       Starscount -= 1;
       const x = this._x + this._width;
       const y = this._y + this._height / 2;
-      const width = 20; 
+      const width = 20;
       const height = 20;
 
       const bullet = new Bullet(x, y, width, height);
@@ -137,20 +146,65 @@ class Hero extends GameObj {
 
       enemies.forEach((enemy) => {
         if (this._x > enemy._x) {
-            bullet.goLeft()
+          bullet.goLeft()
         } else {
-            bullet.goRight();
-          }
-        });
+          bullet.goRight();
+        }
+      });
       data.objects.push(bullet);
 
       this._audio.currentTime = 0;
       this._audio.play();
-      this._lastShootTime = now; 
+      this._lastShootTime = now;
     }
+  }
 }
-}
+class Bottle extends GameObj {
+  constructor(x, y, width, height) {
+    super(x, y, width, height);
+    this._speed = 1;
+    this._stabAudio = document.createElement("audio");
+    this._stabAudio.src = "Song/open.mp3";
+    this._stabAudio1 = document.createElement("audio");
+    this._stabAudio1.src = "Song/drink.mp3";
+    this._stabAudio2 = document.createElement("audio");
+    this._stabAudio2.src = "Song/laught.mp3";
 
+    this._img = document.createElement("img");
+    this._img.src = "Photos/Elixir.png";
+  }
+  update() {
+    super.update();
+
+    const hero = data.objects.filter(obj => obj instanceof Hero);
+    hero.forEach((hero) => {
+      if (intersect(this.getBoundingBox(), hero.getBoundingBox())) {
+        drink = true
+        setTimeout(() => {
+          this._stabAudio.currentTime = 1.3;
+          this._stabAudio.play();
+        }, 50);
+        setTimeout(() => {
+          this._stabAudio1.currentTime = 1;
+          this._stabAudio1.play();
+        }, 600);
+        this.die();
+      }
+    })
+    const enemies = data.objects.filter(obj => obj instanceof Enemy);
+    enemies.forEach((enemy) => {
+      if (intersect(this.getBoundingBox(), enemy.getBoundingBox())) {
+        this._stabAudio2.currentTime = 0;
+        this._stabAudio2.play();
+        this.deleteMe = true;
+      }
+    });
+  }
+
+  die() {
+    this.deleteMe = true;
+  }
+}
 class Enemy extends GameObj {
   constructor(x, y, width, height) {
     super(x, y, width, height);
@@ -173,7 +227,8 @@ class Enemy extends GameObj {
     const hero = data.objects.filter(obj => obj instanceof Hero);
     hero.forEach((hero) => {
       if (intersect(this.getBoundingBox(), hero.getBoundingBox())) {
-        if (MissesCount > 0) {
+        if (changeArmor > 0) changeArmor -= 20
+        else if (MissesCount > 0 && changeArmor === 0) {
           MissesCount -= 1;
           removHearth();
         }
@@ -227,7 +282,7 @@ class Bullet extends GameObj {
 
 //main code
 let data = {
-  objects: [new Hero(0, 270, 130, 130)],
+  objects: [new Hero(0, 270, 130, 130), new Bottle(240, 325, 50, 50)],
   backgroundAudio: BackGraundAudio
 };
 
@@ -246,14 +301,14 @@ function update() {
         alert("you Loose");
         Starscount = -1;
       }
-    }, 3000); 
+    }, 3000);
     location.reload();
   }
-  
+
   data.objects.forEach((obj) => obj.update());
 
   data.objects = data.objects.filter((obj) => obj.deleteMe !== true);
-  
+
   const enemies = data.objects.filter(obj => obj instanceof Enemy);
   if (enemies.length === 0) {
     const enemie = new Enemy(canvas.width - 100, 240, 140, 140);
@@ -262,8 +317,18 @@ function update() {
   }
 }
 
+
 function draw() {
   context.drawImage(BackgraundImg, 0, 0, canvas.width, canvas.height);
+  context.drawImage(Shield, 10, 10, 30, 30);
+
+  context.fillStyle = "gray";
+  context.fillRect(45, 15, 80, 20);
+  if (changeArmor > 0) {
+    if (changeArmor === 20) context.fillStyle = "#8B0000";
+    else context.fillStyle = "#C0C0C0";
+    context.fillRect(45, 15, changeArmor, 20);
+  }
   data.objects.forEach(obj => obj.render());
 }
 
@@ -283,9 +348,9 @@ document.addEventListener("keydown", (evt) => {
   } else if (evt.code === "ArrowLeft") {
     hero.goLeft();
   } else if (evt.code === "ArrowUp") {
-    hero.jump();
+    if (drink === true) hero.jump();
   } else if (evt.code === "Space") {
-    if(Starscount>0){
+    if (Starscount > 0) {
       hero.fire();
     }
   }
@@ -307,21 +372,28 @@ function myFunction() {
 
 //warning function
 for (i = 0; i < close.length; i++) {
-  close[i].onclick = function() {
+  close[i].onclick = function () {
     let div = this.parentElement;
     div.style.opacity = "0";
-    setTimeout(function() { div.style.display = "none"; }, 600);
+    setTimeout(function () { div.style.display = "none"; }, 600);
   };
 }
 
+let volume = 0.7;
+BackGraundAudio.volume = volume;
+
+volumeSlider.addEventListener("input", () => {
+  volume = parseFloat(volumeSlider.value);
+  BackGraundAudio.volume = volume;
+});
 
 //this function is creating stars and adding into html code
 function createStars(count) {
   const starContainer = document.getElementById("starContainer");
-  starContainer.innerHTML = ""; 
+  starContainer.innerHTML = "";
   for (let i = 0; i < count; i++) {
     const star = document.createElement("img");
-    star.src = "Photos/Star.png"; 
+    star.src = "Photos/Star.png";
     starContainer.appendChild(star);
   }
 }
@@ -329,16 +401,16 @@ function createStars(count) {
 function removeStar() {
   const stars = starContainer.getElementsByTagName("img");
   if (stars.length > 0) {
-      starContainer.removeChild(stars[0]);
+    starContainer.removeChild(stars[0]);
   }
 }
 //this function is creating stars and adding into html code
 function createHearth(count) {
   const hearthContainer = document.getElementById("missesValue");
-  hearthContainer.innerHTML = ""; 
+  hearthContainer.innerHTML = "";
   for (let i = 0; i < count; i++) {
     const star = document.createElement("img");
-    star.src = "Photos/heart.png"; 
+    star.src = "Photos/heart.png";
     hearthContainer.appendChild(star);
   }
 }
@@ -353,19 +425,19 @@ function removHearth() {
 
 //this function is to detect if objects hit each other
 function intersect(rect1, rect2) {
-  if(rect1.width>120 && rect2.width>120){
-  const x = Math.max(rect1.x, rect2.x),
-    num1 = Math.min(rect1.x + rect1.width, rect2.x + rect2.width)-80,
-    y = Math.max(rect1.y, rect2.y),
-    num2 = Math.min(rect1.y + rect1.height, rect2.y + rect2.height)-50;
-  return num1 >= x && num2 >= y;
-  }
-  else{
+  if (rect1.width > 120 && rect2.width > 120) {
     const x = Math.max(rect1.x, rect2.x),
-    num1 = Math.min(rect1.x + rect1.width, rect2.x + rect2.width),
-    y = Math.max(rect1.y, rect2.y),
-    num2 = Math.min(rect1.y + rect1.height, rect2.y + rect2.height);
-  return num1 >= x && num2 >= y;
+      num1 = Math.min(rect1.x + rect1.width, rect2.x + rect2.width) - 80,
+      y = Math.max(rect1.y, rect2.y),
+      num2 = Math.min(rect1.y + rect1.height, rect2.y + rect2.height) - 50;
+    return num1 >= x && num2 >= y;
+  }
+  else {
+    const x = Math.max(rect1.x, rect2.x),
+      num1 = Math.min(rect1.x + rect1.width, rect2.x + rect2.width),
+      y = Math.max(rect1.y, rect2.y),
+      num2 = Math.min(rect1.y + rect1.height, rect2.y + rect2.height);
+    return num1 >= x && num2 >= y;
   }
 }
 
