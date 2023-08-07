@@ -107,7 +107,7 @@ class Hero extends GameObj {
 
     this._img2 = document.createElement("img");
     this._img2.src = "Photos/ninja/walk2l.png";
-  
+
     this._img3 = document.createElement("img");
     this._img3.src = "Photos/ninja/walk3l.png";
 
@@ -116,7 +116,7 @@ class Hero extends GameObj {
 
     this._img5 = document.createElement("img");
     this._img5.src = "Photos/ninja/walk2.png";
-  
+
     this._img6 = document.createElement("img");
     this._img6.src = "Photos/ninja/walk3.png";
 
@@ -129,11 +129,11 @@ class Hero extends GameObj {
     this._audio = document.createElement("audio");
     this._audio.src = "Song/Knife.mp3";
 
-    this.walkImagesLeft = [this._img4, this._img5, this._img6] ; 
-    this.walkImagesRight =  [this._img1, this._img2, this._img3] ; 
-    this.currentAnimationFrame = 0; 
-    this.isWalking = false; 
-    this.isJumping = false; 
+    this.walkImagesLeft = [this._img4, this._img5, this._img6];
+    this.walkImagesRight = [this._img1, this._img2, this._img3];
+    this.currentAnimationFrame = 0;
+    this.isWalking = false;
+    this.isJumping = false;
   }
 
   changeImage(newImageSrc) {
@@ -146,18 +146,18 @@ class Hero extends GameObj {
   render() {
     super.render();
     if (this.isWalking) {
-      if (this.isJumping){
-        if(this._xDelta > 0)context.drawImage(this._img7, this._x, this._y, this._width, this._height);
-        else if(this._xDelta < 0) context.drawImage(this._img8, this._x, this._y, this._width, this._height);
+      if (this.isJumping) {
+        if (this._xDelta > 0) context.drawImage(this._img7, this._x, this._y, this._width, this._height);
+        else if (this._xDelta < 0) context.drawImage(this._img8, this._x, this._y, this._width, this._height);
       } else if (this._xDelta < 0) { // If moving left
         context.drawImage(this.walkImagesLeft[this.currentAnimationFrame], this._x, this._y, this._width, this._height);
       } else if (this._xDelta > 0) { // If moving right
         context.drawImage(this.walkImagesRight[this.currentAnimationFrame], this._x, this._y, this._width, this._height);
-      } 
-    } 
+      }
+    }
     else if (this.isJumping) context.drawImage(this._img7, this._x, this._y, this._width, this._height);
     else {
-      if(this._left) context.drawImage(this._imgel, this._x, this._y, this._width, this._height);
+      if (this._left) context.drawImage(this._imgel, this._x, this._y, this._width, this._height);
       else context.drawImage(this._imger, this._x, this._y, this._width, this._height);
     }
 
@@ -195,45 +195,61 @@ class Hero extends GameObj {
     if (this._x <= -45) this._x = -45;
     if (this._x >= canvas.width - 100) this._x = canvas.width - 100;
 
-    if (this._y < 20) {
-      this._yDelta = 7;
-    } else if (this._y >= 250) {
-      this._yDelta = 0;
+
+    if ((this._x >= 455 && this._x <= 460) || (this._x >= 670 && this._x <= 680)) {
+      if (this._y >= 168 && this._y <=174)  this._yDelta = 7;
     }
-    if (this._y < 250) {
+    if (this._x <= 455 || this._x >= 680) {
+      if (this._y < 60) {
+        this._yDelta = 7;
+      } else if (this._y >= 270) {
+        this._yDelta = 0;
+      }
+    }
+    else {
+      if (this._y < 60) {
+        this._yDelta = 7;
+      } else if (this._y >= 168 && this._y <=174) {
+        this._yDelta = 0;
+      } else if (this._y >= 270) {
+        this._yDelta = 0;
+      }
+    }
+    if (this._y < 270) {
       this._audioJumpDown.currentTime = 0.5;
       this._audioJumpDown.play();
     }
   }
 
+
   stopY() {
-    if (this._y === 250) this._yDelta = 0;
+    if (this._y === 270) this._yDelta = 0;
   }
 
   jump() {
     this._audioJump.currentTime = 0.05;
     this._audioJump.play();
     if (this._y > 20) this._yDelta = -10;
-    else this._yDelta = 7;
   }
 
+
   fire() {
-    const now = Date.now();
+    const now = Date.now()
     if (now - this._lastShootTime >= this._shootInterval && Starscount > 0) {
-      removeStar();
-      Starscount -= 1;
-      const x = this._x + this._width;
-      const y = this._y + this._height / 2;
+      removeStar()
+      Starscount -= 1
+      const x = this._x + this._width
+      const y = this._y + this._height / 2
       const width = 20;
       const height = 20;
 
       const bullet = new Bullet(x, y, width, height);
 
-        if (this._left) {
-          bullet.goLeft()
-        } else {
-          bullet.goRight();
-        }
+      if (this._left) {
+        bullet.goLeft()
+      } else {
+        bullet.goRight();
+      }
       data.objects.push(bullet);
 
       this._audio.currentTime = 0;
@@ -428,7 +444,7 @@ class Bullet extends GameObj {
 
 //main code
 let data = {
-  objects: [new Hero(0, 250, 130, 130), new Bottle(300, 325, 50, 50), new Jug(600, 190, 80, 80)],
+  objects: [new Hero(0, 270, 100, 100), new Bottle(300, 325, 50, 50), new Jug(600, 190, 80, 80)],
   backgroundAudio: BackGraundAudio
 };
 
@@ -442,18 +458,6 @@ function update() {
     MissesCount = 3;
     location.reload();
   }
-  // } else if (ScoreCount < 5) {
-  //   const Jugs = data.objects.filter(obj => obj instanceof Jug);
-  //   if (Jugs.length === 0 && ScoreCount < 2) {
-  //     setTimeout(() => {
-  //       if (ScoreCount < 5) {
-  //         alert("You Lose");
-  //         Starscount = -1;
-  //         location.reload();
-  //       }
-  //     }, 3000);
-  //   }
-  // }
 
 
   data.objects.forEach((obj) => obj.update());
@@ -462,7 +466,7 @@ function update() {
 
   const enemies = data.objects.filter(obj => obj instanceof Enemy);
   if (enemies.length === 0) {
-    const enemie = new Enemy(canvas.width - 100, 240, 140, 140);
+    const enemie = new Enemy(canvas.width - 100, 260, 110, 110);
     enemie.goLeft();
     data.objects.push(enemie);
   }
@@ -583,7 +587,7 @@ function removHearth() {
 
 //this function is to detect if objects hit each other
 function intersect(rect1, rect2) {
-  if (rect1.width > 120 && rect2.width > 120) {
+  if (rect1.width > 90 && rect2.width > 90) {
     const x = Math.max(rect1.x, rect2.x),
       num1 = Math.min(rect1.x + rect1.width, rect2.x + rect2.width) - 80,
       y = Math.max(rect1.y, rect2.y),
