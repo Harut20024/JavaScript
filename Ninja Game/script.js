@@ -92,8 +92,6 @@ class Bottle extends GameObj {
     this._img = document.createElement("img");
     this._img.src = "Photos/Elixir.png";
 
-    // this._imge = document.createElement("img");
-    // this._imge.src = "Photos/ninja/getl.png";
   }
   update() {
     super.update();
@@ -218,8 +216,10 @@ class Hero extends GameObj {
     this._shootInterval = 500;
     this._lastShootTime = 0;
     this.animationCounter = 0;
-    this.animationDelay = 12;
-
+    this.animationDelay = 18;
+    this.isJumpingDown = false;
+    this.animationCounterT = 0;
+    this.animationDelayT = 18;
     this._right = false
     this._left = false
 
@@ -298,6 +298,7 @@ class Hero extends GameObj {
       if (this._left) context.drawImage(this._imgel, this._x, this._y, this._width, this._height);
       else context.drawImage(this._imger, this._x, this._y, this._width, this._height);
     }
+    if(this._y >= 265) this.isJumpingDown = true;
 
   }
 
@@ -338,14 +339,14 @@ class Hero extends GameObj {
       if (this._y >= 168 && this._y <= 174) this._yDelta = 7;
     }
     if (this._x <= 455 || this._x >= 680) {
-      if (this._y < 60) {
+      if (this._y < 90) {
         this._yDelta = 7;
       } else if (this._y >= 270) {
         this._yDelta = 0;
       }
     }
     else {
-      if (this._y < 60) {
+      if (this._y < 0) {
         this._yDelta = 7;
       } else if (this._y >= 168 && this._y <= 174) {
         this._yDelta = 0;
@@ -353,9 +354,10 @@ class Hero extends GameObj {
         this._yDelta = 0;
       }
     }
-    if (this._y >= 267 && this._y < 269) {
+    if (this._y >= 266 && this._y <= 268.5) {
       this._audioJumpDown.currentTime = 0.5;
       this._audioJumpDown.play();
+      this.jumpDownAnimation(); 
     }
   }
 
@@ -364,10 +366,34 @@ class Hero extends GameObj {
     if (this._y === 270) this._yDelta = 0;
   }
 
+  jumpDownAnimation() {
+    if (this.isJumpingDown) {
+      this.isJumpingDown = false; 
+      this.jumpDownImage();
+      setTimeout(() => {
+        this.standImage();
+      }, 600);
+    }
+  }
+
+    jumpDownImage() {
+    if (this._right) {
+      this._imger.src = "Photos/ninja/jumpdownl.png";
+    } else {
+      this._imgel.src = "Photos/ninja/jumpdown.png";
+    }
+  }
+  standImage() {
+    if (this._right) {
+      this._imger.src = "Photos/ninja/standl.png";
+      this._imgel.src = "Photos/ninja/stand.png";
+    }
+  }
   jump() {
     this._audioJump.currentTime = 0.05;
     this._audioJump.play();
     if (this._y > 20) this._yDelta = -10;
+
   }
 
 
@@ -399,12 +425,12 @@ class Hero extends GameObj {
   updateAnimation() {
     this.animationCounter++;
     if (this.animationCounter >= this.animationDelay) {
-    if (this._xDelta > 0) {
-      this.currentAnimationFrame = (this.currentAnimationFrame + 1) % this.walkImagesRight.length;
-    } else if (this._xDelta < 0) {
-      this.currentAnimationFrame = (this.currentAnimationFrame + 1) % this.walkImagesLeft.length;
+      if (this._xDelta > 0) {
+        this.currentAnimationFrame = (this.currentAnimationFrame + 1) % this.walkImagesRight.length;
+      } else if (this._xDelta < 0) {
+        this.currentAnimationFrame = (this.currentAnimationFrame + 1) % this.walkImagesLeft.length;
+      }
     }
-  }
   }
 }
 
@@ -466,7 +492,6 @@ class Enemy extends GameObj {
       if ((this._x + 50 <= hero._x || this._x - 50 >= hero._x)) {
         this._img1.src = "Photos/enemy/walk1.png";
         context.drawImage(this.walkImages[this.currentAnimationFrame], this._x, this._y, this._width, this._height);
-
       }
       else {
         if (this._y <= hero._y) {
