@@ -41,6 +41,10 @@ class GameObj {
 
     this._img = document.createElement("img");
     this._img.src = "";
+
+    this._img.onload = () => {
+      context.drawImage(this._img, this._x, this._y, this._width, this._height);
+    };
   }
 
   getBoundingBox() {
@@ -73,7 +77,6 @@ class GameObj {
     this._xDelta = 0;
   }
 }
-
 class Hero extends GameObj {
   constructor(x, y, width, height) {
     super(x, y, width, height);
@@ -81,50 +84,130 @@ class Hero extends GameObj {
     this._shootInterval = 500;
     this._lastShootTime = 0;
 
+    this._right = false
+    this._left = false
+
     this._audioJumpDown = document.createElement("audio");
     this._audioJumpDown.src = "Song/JumpDown.mp3";
 
     this._audioJump = document.createElement("audio");
     this._audioJump.src = "Song/jump.mp3";
 
-    this._img2 = document.createElement("img");
-    this._img2.src = "Photos/ninja.png";
+    this._imge = document.createElement("img");
+    this._imge.src = "Photos/ninja/standl.png";
+
+    this._imgel = document.createElement("img");
+    this._imgel.src = "Photos/ninja/stand.png";
+
+    this._imger = document.createElement("img");
+    this._imger.src = "Photos/ninja/standl.png";
 
     this._img1 = document.createElement("img");
-    this._img1.src = "Photos/ninja1.png";
+    this._img1.src = "Photos/ninja/walk1l.png";
+
+    this._img2 = document.createElement("img");
+    this._img2.src = "Photos/ninja/walk2l.png";
+  
+    this._img3 = document.createElement("img");
+    this._img3.src = "Photos/ninja/walk3l.png";
+
+    this._img4 = document.createElement("img");
+    this._img4.src = "Photos/ninja/walk1.png";
+
+    this._img5 = document.createElement("img");
+    this._img5.src = "Photos/ninja/walk2.png";
+  
+    this._img6 = document.createElement("img");
+    this._img6.src = "Photos/ninja/walk3.png";
+
+    this._img7 = document.createElement("img");
+    this._img7.src = "Photos/ninja/jumpupl.png";
+
+    this._img8 = document.createElement("img");
+    this._img8.src = "Photos/ninja/jumpup.png";
 
     this._audio = document.createElement("audio");
     this._audio.src = "Song/Knife.mp3";
+
+    this.walkImagesLeft = [this._img4, this._img5, this._img6] ; 
+    this.walkImagesRight =  [this._img1, this._img2, this._img3] ; 
+    this.currentAnimationFrame = 0; 
+    this.isWalking = false; 
+    this.isJumping = false; 
   }
-  stopY() {
-    if (this._y === 250) this._yDelta = 0;
+
+  changeImage(newImageSrc) {
+    this._imger.src = newImageSrc;
+    setInterval(() => {
+      this._imger.src = "Photos/ninja/standl.png";
+    }, 1000);
   }
+
   render() {
     super.render();
-    const enemies = data.objects.filter(obj => obj instanceof Enemy);
-    enemies.forEach((enemy) => {
-      if (this._x > enemy._x) {
-        context.drawImage(this._img1, this._x, this._y, this._width, this._height);
-      } else {
-        context.drawImage(this._img2, this._x, this._y, this._width, this._height);
-      }
-    });
+    if (this.isWalking) {
+      if (this.isJumping){
+        if(this._xDelta > 0)context.drawImage(this._img7, this._x, this._y, this._width, this._height);
+        else if(this._xDelta < 0) context.drawImage(this._img8, this._x, this._y, this._width, this._height);
+      } else if (this._xDelta < 0) { // If moving left
+        context.drawImage(this.walkImagesLeft[this.currentAnimationFrame], this._x, this._y, this._width, this._height);
+      } else if (this._xDelta > 0) { // If moving right
+        context.drawImage(this.walkImagesRight[this.currentAnimationFrame], this._x, this._y, this._width, this._height);
+      } 
+    } 
+    else if (this.isJumping) context.drawImage(this._img7, this._x, this._y, this._width, this._height);
+    else {
+      if(this._left) context.drawImage(this._imgel, this._x, this._y, this._width, this._height);
+      else context.drawImage(this._imger, this._x, this._y, this._width, this._height);
+    }
 
   }
+
+  goRight() {
+    super.goRight()
+    this._right = true
+    this._left = false
+  }
+
+  goLeft() {
+    super.goLeft()
+    this._right = false
+    this._left = true
+  }
+
   update() {
     super.update();
+    if (this._xDelta !== 0) {
+      this.isWalking = true;
+      setInterval(() => {
+        this.updateAnimation();
+      }, 300);
+    } else {
+      this.isWalking = false;
+    }
+
+    if (this._yDelta !== 0) {
+      this.isJumping = true;
+    } else {
+      this.isJumping = false;
+    }
+
     if (this._x <= -45) this._x = -45;
     if (this._x >= canvas.width - 100) this._x = canvas.width - 100;
 
     if (this._y < 20) {
       this._yDelta = 7;
-    } else if (this._y >= 270) {
+    } else if (this._y >= 250) {
       this._yDelta = 0;
     }
-    if (this._y < 270) {
+    if (this._y < 250) {
       this._audioJumpDown.currentTime = 0.5;
       this._audioJumpDown.play();
     }
+  }
+
+  stopY() {
+    if (this._y === 250) this._yDelta = 0;
   }
 
   jump() {
@@ -145,15 +228,12 @@ class Hero extends GameObj {
       const height = 20;
 
       const bullet = new Bullet(x, y, width, height);
-      const enemies = data.objects.filter(obj => obj instanceof Enemy);
 
-      enemies.forEach((enemy) => {
-        if (this._x > enemy._x) {
+        if (this._left) {
           bullet.goLeft()
         } else {
           bullet.goRight();
         }
-      });
       data.objects.push(bullet);
 
       this._audio.currentTime = 0;
@@ -161,7 +241,17 @@ class Hero extends GameObj {
       this._lastShootTime = now;
     }
   }
+
+  updateAnimation() {
+    if (this._xDelta > 0) {
+      this.currentAnimationFrame = (this.currentAnimationFrame + 1) % this.walkImagesRight.length;
+    } else if (this._xDelta < 0) {
+      this.currentAnimationFrame = (this.currentAnimationFrame + 1) % this.walkImagesLeft.length;
+    }
+  }
+
 }
+
 class Bottle extends GameObj {
   constructor(x, y, width, height) {
     super(x, y, width, height);
@@ -175,6 +265,9 @@ class Bottle extends GameObj {
 
     this._img = document.createElement("img");
     this._img.src = "Photos/Elixir.png";
+
+    // this._imge = document.createElement("img");
+    // this._imge.src = "Photos/ninja/getl.png";
   }
   update() {
     super.update();
@@ -192,6 +285,7 @@ class Bottle extends GameObj {
           this._stabAudio1.play();
         }, 600);
         this.die();
+        hero.changeImage("Photos/ninja/getl.png");
       }
     })
     const enemies = data.objects.filter(obj => obj instanceof Enemy);
@@ -259,7 +353,6 @@ class Jug extends GameObj {
   }
 }
 
-
 class Enemy extends GameObj {
   constructor(x, y, width, height) {
     super(x, y, width, height);
@@ -299,7 +392,6 @@ class Enemy extends GameObj {
   }
 }
 
-
 class Bullet extends GameObj {
   constructor(x, y, width, height) {
     super(x, y, width, height);
@@ -334,10 +426,9 @@ class Bullet extends GameObj {
 }
 
 
-
 //main code
 let data = {
-  objects: [new Hero(0, 270, 130, 130), new Bottle(300, 325, 50, 50), new Jug(600, 190, 80, 80)],
+  objects: [new Hero(0, 250, 130, 130), new Bottle(300, 325, 50, 50), new Jug(600, 190, 80, 80)],
   backgroundAudio: BackGraundAudio
 };
 
@@ -410,8 +501,10 @@ document.addEventListener("keydown", (evt) => {
   const hero = data.objects.find(obj => obj instanceof Hero);
   if (evt.code === "ArrowRight") {
     hero.goRight();
+    hero.updateAnimation(); // Call updateAnimation when moving right
   } else if (evt.code === "ArrowLeft") {
     hero.goLeft();
+    hero.updateAnimation(); // Call updateAnimation when moving left
   } else if (evt.code === "ArrowUp") {
     if (drink === true) hero.jump();
   } else if (evt.code === "Space") {
