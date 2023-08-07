@@ -217,6 +217,8 @@ class Hero extends GameObj {
     this._speed = 5;
     this._shootInterval = 500;
     this._lastShootTime = 0;
+    this.animationCounter = 0;
+    this.animationDelay = 12;
 
     this._right = false
     this._left = false
@@ -395,13 +397,15 @@ class Hero extends GameObj {
   }
 
   updateAnimation() {
+    this.animationCounter++;
+    if (this.animationCounter >= this.animationDelay) {
     if (this._xDelta > 0) {
       this.currentAnimationFrame = (this.currentAnimationFrame + 1) % this.walkImagesRight.length;
     } else if (this._xDelta < 0) {
       this.currentAnimationFrame = (this.currentAnimationFrame + 1) % this.walkImagesLeft.length;
     }
   }
-
+  }
 }
 
 class Enemy extends GameObj {
