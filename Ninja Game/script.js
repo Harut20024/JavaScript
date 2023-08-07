@@ -3,10 +3,9 @@ const context = canvas.getContext("2d");
 let Score = document.getElementById("scoreValue");
 let Mises = document.getElementById("missesValue");
 //this is variables for same aniamtions
-let ScoreCount = 0;
+let ScoreCount = 0, i
 let MissesCount = 3;
-let Starscount = 7;
-let i;
+let Starscount = 3;
 let changeArmor = 80
 let drink = false
 let rainPosY = 0;
@@ -209,6 +208,58 @@ class Bottle extends GameObj {
     this.deleteMe = true;
   }
 }
+
+class Jug extends GameObj {
+  constructor(x, y, width, height) {
+    super(x, y, width, height);
+    this._speed = 1;
+    this.time = 0;
+    this.imageDuration = 500;
+    this.currentImageIndex = 0;
+    this.context = context;
+
+    this._audio = document.createElement("audio");
+    this._audio.src = "Song/jug.mp3";
+
+    this._img1 = document.createElement("img");
+    this._img1.src = "Photos/jug.png";
+
+    this._img2 = document.createElement("img");
+    this._img2.src = "Photos/jug1.png";
+
+    this.images = [this._img1, this._img2];
+  }
+
+  render() {
+    super.render();
+    const currentImage = this.images[this.currentImageIndex];
+    this.context.drawImage(currentImage, this._x, this._y, this._width, this._height);
+    this.time += 16;
+    if (this.time >= this.imageDuration) {
+      this.currentImageIndex = (this.currentImageIndex + 1) % this.images.length;
+      this.time = 0;
+    }
+  }
+
+  update() {
+    super.update();
+    const hero = data.objects.filter(obj => obj instanceof Hero);
+    hero.forEach((hero) => {
+      if (intersect(this.getBoundingBox(), hero.getBoundingBox())) {
+        this._audio.currentTime = 0;
+        this._audio.play();
+        Starscount += 3;
+        this.die();
+      }
+    });
+  }
+
+  die() {
+    this.deleteMe = true;
+  }
+}
+
+
 class Enemy extends GameObj {
   constructor(x, y, width, height) {
     super(x, y, width, height);
@@ -286,7 +337,7 @@ class Bullet extends GameObj {
 
 //main code
 let data = {
-  objects: [new Hero(0, 270, 130, 130), new Bottle(300, 325, 50, 50)],
+  objects: [new Hero(0, 270, 130, 130), new Bottle(300, 325, 50, 50), new Jug(600, 190, 80, 80)],
   backgroundAudio: BackGraundAudio
 };
 
@@ -299,15 +350,20 @@ function update() {
     alert("you Loose");
     MissesCount = 3;
     location.reload();
-  } else if (Starscount === 0 && ScoreCount < 5) {
-    setTimeout(() => {
-      if (ScoreCount < 5) {
-        alert("you Loose");
-        Starscount = -1;
-      }
-    }, 3000);
-    location.reload();
   }
+  // } else if (ScoreCount < 5) {
+  //   const Jugs = data.objects.filter(obj => obj instanceof Jug);
+  //   if (Jugs.length === 0 && ScoreCount < 2) {
+  //     setTimeout(() => {
+  //       if (ScoreCount < 5) {
+  //         alert("You Lose");
+  //         Starscount = -1;
+  //         location.reload();
+  //       }
+  //     }, 3000);
+  //   }
+  // }
+
 
   data.objects.forEach((obj) => obj.update());
 
@@ -325,10 +381,10 @@ function update() {
 function draw() {
   context.drawImage(BackgraundImg, 0, 0, canvas.width, canvas.height);
   rainPosY += rainSpeed;
-  if (rainPosY >= canvas.height-470) {
-    rainPosY = 10; 
+  if (rainPosY >= canvas.height - 470) {
+    rainPosY = 10;
   }
-  context.drawImage(rainfoto, 0, rainPosY, canvas.width, canvas.height-140);
+  context.drawImage(rainfoto, 0, rainPosY, canvas.width, canvas.height - 140);
   context.drawImage(Shield, 10, 10, 30, 30);
 
   context.fillStyle = "gray";
