@@ -77,196 +77,6 @@ class GameObj {
     this._xDelta = 0;
   }
 }
-class Hero extends GameObj {
-  constructor(x, y, width, height) {
-    super(x, y, width, height);
-    this._speed = 5;
-    this._shootInterval = 500;
-    this._lastShootTime = 0;
-
-    this._right = false
-    this._left = false
-
-    this._audioJumpDown = document.createElement("audio");
-    this._audioJumpDown.src = "Song/JumpDown.mp3";
-
-    this._audioJump = document.createElement("audio");
-    this._audioJump.src = "Song/jump.mp3";
-
-    this._imge = document.createElement("img");
-    this._imge.src = "Photos/ninja/standl.png";
-
-    this._imgel = document.createElement("img");
-    this._imgel.src = "Photos/ninja/stand.png";
-
-    this._imger = document.createElement("img");
-    this._imger.src = "Photos/ninja/standl.png";
-
-    this._img1 = document.createElement("img");
-    this._img1.src = "Photos/ninja/walk1l.png";
-
-    this._img2 = document.createElement("img");
-    this._img2.src = "Photos/ninja/walk2l.png";
-
-    this._img3 = document.createElement("img");
-    this._img3.src = "Photos/ninja/walk3l.png";
-
-    this._img4 = document.createElement("img");
-    this._img4.src = "Photos/ninja/walk1.png";
-
-    this._img5 = document.createElement("img");
-    this._img5.src = "Photos/ninja/walk2.png";
-
-    this._img6 = document.createElement("img");
-    this._img6.src = "Photos/ninja/walk3.png";
-
-    this._img7 = document.createElement("img");
-    this._img7.src = "Photos/ninja/jumpupl.png";
-
-    this._img8 = document.createElement("img");
-    this._img8.src = "Photos/ninja/jumpup.png";
-
-    this._audio = document.createElement("audio");
-    this._audio.src = "Song/Knife.mp3";
-
-    this.walkImagesLeft = [this._img4, this._img5, this._img6];
-    this.walkImagesRight = [this._img1, this._img2, this._img3];
-    this.currentAnimationFrame = 0;
-    this.isWalking = false;
-    this.isJumping = false;
-  }
-
-  changeImage(newImageSrc) {
-    this._imger.src = newImageSrc;
-    setInterval(() => {
-      this._imger.src = "Photos/ninja/standl.png";
-    }, 1000);
-  }
-
-  render() {
-    super.render();
-    if (this.isWalking) {
-      if (this.isJumping) {
-        if (this._xDelta > 0) context.drawImage(this._img7, this._x, this._y, this._width, this._height);
-        else if (this._xDelta < 0) context.drawImage(this._img8, this._x, this._y, this._width, this._height);
-      } else if (this._xDelta < 0) { // If moving left
-        context.drawImage(this.walkImagesLeft[this.currentAnimationFrame], this._x, this._y, this._width, this._height);
-      } else if (this._xDelta > 0) { // If moving right
-        context.drawImage(this.walkImagesRight[this.currentAnimationFrame], this._x, this._y, this._width, this._height);
-      }
-    }
-    else if (this.isJumping) context.drawImage(this._img7, this._x, this._y, this._width, this._height);
-    else {
-      if (this._left) context.drawImage(this._imgel, this._x, this._y, this._width, this._height);
-      else context.drawImage(this._imger, this._x, this._y, this._width, this._height);
-    }
-
-  }
-
-  goRight() {
-    super.goRight()
-    this._right = true
-    this._left = false
-  }
-
-  goLeft() {
-    super.goLeft()
-    this._right = false
-    this._left = true
-  }
-
-  update() {
-    super.update();
-    if (this._xDelta !== 0) {
-      this.isWalking = true;
-      setInterval(() => {
-        this.updateAnimation();
-      }, 300);
-    } else {
-      this.isWalking = false;
-    }
-
-    if (this._yDelta !== 0) {
-      this.isJumping = true;
-    } else {
-      this.isJumping = false;
-    }
-
-    if (this._x <= -45) this._x = -45;
-    if (this._x >= canvas.width - 100) this._x = canvas.width - 100;
-
-
-    if ((this._x >= 455 && this._x <= 460) || (this._x >= 670 && this._x <= 680)) {
-      if (this._y >= 168 && this._y <=174)  this._yDelta = 7;
-    }
-    if (this._x <= 455 || this._x >= 680) {
-      if (this._y < 60) {
-        this._yDelta = 7;
-      } else if (this._y >= 270) {
-        this._yDelta = 0;
-      }
-    }
-    else {
-      if (this._y < 60) {
-        this._yDelta = 7;
-      } else if (this._y >= 168 && this._y <=174) {
-        this._yDelta = 0;
-      } else if (this._y >= 270) {
-        this._yDelta = 0;
-      }
-    }
-    if (this._y < 270) {
-      this._audioJumpDown.currentTime = 0.5;
-      this._audioJumpDown.play();
-    }
-  }
-
-
-  stopY() {
-    if (this._y === 270) this._yDelta = 0;
-  }
-
-  jump() {
-    this._audioJump.currentTime = 0.05;
-    this._audioJump.play();
-    if (this._y > 20) this._yDelta = -10;
-  }
-
-
-  fire() {
-    const now = Date.now()
-    if (now - this._lastShootTime >= this._shootInterval && Starscount > 0) {
-      removeStar()
-      Starscount -= 1
-      const x = this._x + this._width
-      const y = this._y + this._height / 2
-      const width = 20;
-      const height = 20;
-
-      const bullet = new Bullet(x, y, width, height);
-
-      if (this._left) {
-        bullet.goLeft()
-      } else {
-        bullet.goRight();
-      }
-      data.objects.push(bullet);
-
-      this._audio.currentTime = 0;
-      this._audio.play();
-      this._lastShootTime = now;
-    }
-  }
-
-  updateAnimation() {
-    if (this._xDelta > 0) {
-      this.currentAnimationFrame = (this.currentAnimationFrame + 1) % this.walkImagesRight.length;
-    } else if (this._xDelta < 0) {
-      this.currentAnimationFrame = (this.currentAnimationFrame + 1) % this.walkImagesLeft.length;
-    }
-  }
-
-}
 
 class Bottle extends GameObj {
   constructor(x, y, width, height) {
@@ -369,45 +179,6 @@ class Jug extends GameObj {
   }
 }
 
-class Enemy extends GameObj {
-  constructor(x, y, width, height) {
-    super(x, y, width, height);
-    this._speed = 3;
-
-    this._stabAudio = document.createElement("audio");
-    this._stabAudio.src = "Song/Die.mp3";
-
-    this._img = document.createElement("img");
-    this._img.src = "Photos/Knight.png";
-  }
-
-  update() {
-    super.update();
-
-    if ((this._xDelta < 0 && this._x + this._width < 0) ||
-      (this._xDelta > 0 && this._x > canvas.width)) {
-      this.deleteMe = true;
-    }
-    const hero = data.objects.filter(obj => obj instanceof Hero);
-    hero.forEach((hero) => {
-      if (intersect(this.getBoundingBox(), hero.getBoundingBox())) {
-        if (changeArmor > 0) changeArmor -= 20
-        else if (MissesCount > 0 && changeArmor === 0) {
-          MissesCount -= 1;
-          removHearth();
-        }
-        this._stabAudio.currentTime = 0.1;
-        this._stabAudio.play();
-        this.die();
-      }
-    })
-  }
-
-  die() {
-    this.deleteMe = true;
-  }
-}
-
 class Bullet extends GameObj {
   constructor(x, y, width, height) {
     super(x, y, width, height);
@@ -440,6 +211,286 @@ class Bullet extends GameObj {
     });
   }
 }
+class Hero extends GameObj {
+  constructor(x, y, width, height) {
+    super(x, y, width, height);
+    this._speed = 5;
+    this._shootInterval = 500;
+    this._lastShootTime = 0;
+
+    this._right = false
+    this._left = false
+
+    this._audioJumpDown = document.createElement("audio");
+    this._audioJumpDown.src = "Song/JumpDown.mp3";
+
+    this._audioJump = document.createElement("audio");
+    this._audioJump.src = "Song/jump.mp3";
+
+    this._imge = document.createElement("img");
+    this._imge.src = "Photos/ninja/standl.png";
+
+    this._imgel = document.createElement("img");
+    this._imgel.src = "Photos/ninja/stand.png";
+
+    this._imger = document.createElement("img");
+    this._imger.src = "Photos/ninja/standl.png";
+
+    this._img1 = document.createElement("img");
+    this._img1.src = "Photos/ninja/walk1l.png";
+
+    this._img2 = document.createElement("img");
+    this._img2.src = "Photos/ninja/walk2l.png";
+
+    this._img3 = document.createElement("img");
+    this._img3.src = "Photos/ninja/walk3l.png";
+
+    this._img4 = document.createElement("img");
+    this._img4.src = "Photos/ninja/walk1.png";
+
+    this._img5 = document.createElement("img");
+    this._img5.src = "Photos/ninja/walk2.png";
+
+    this._img6 = document.createElement("img");
+    this._img6.src = "Photos/ninja/walk3.png";
+
+    this._img7 = document.createElement("img");
+    this._img7.src = "Photos/ninja/jumpupl.png";
+
+    this._img8 = document.createElement("img");
+    this._img8.src = "Photos/ninja/jumpup.png";
+
+    this._audio = document.createElement("audio");
+    this._audio.src = "Song/Knife.mp3";
+
+    this.walkImagesLeft = [this._img4, this._img5, this._img6];
+    this.walkImagesRight = [this._img1, this._img2, this._img3];
+    this.currentAnimationFrame = 0;
+    this.isWalking = false;
+    this.isJumping = false;
+  }
+
+  changeImage(newImageSrc) {
+    this._imger.src = newImageSrc;
+    this._imgel.src = newImageSrc;
+    setInterval(() => {
+      this._imger.src = "Photos/ninja/standl.png";
+      this._imgel.src = "Photos/ninja/stand.png";
+    }, 1300);
+  }
+
+  render() {
+    super.render();
+    if (this.isWalking) {
+      if (this.isJumping) {
+        if (this._xDelta > 0) context.drawImage(this._img7, this._x, this._y, this._width, this._height);
+        else if (this._xDelta < 0) context.drawImage(this._img8, this._x, this._y, this._width, this._height);
+      } else if (this._xDelta < 0) { // If moving left
+        context.drawImage(this.walkImagesLeft[this.currentAnimationFrame], this._x, this._y, this._width, this._height);
+      } else if (this._xDelta > 0) { // If moving right
+        context.drawImage(this.walkImagesRight[this.currentAnimationFrame], this._x, this._y, this._width, this._height);
+      }
+    }
+    else if (this.isJumping) context.drawImage(this._img7, this._x, this._y, this._width, this._height);
+    else {
+      if (this._left) context.drawImage(this._imgel, this._x, this._y, this._width, this._height);
+      else context.drawImage(this._imger, this._x, this._y, this._width, this._height);
+    }
+
+  }
+
+  goRight() {
+    super.goRight()
+    this._right = true
+    this._left = false
+  }
+
+  goLeft() {
+    super.goLeft()
+    this._right = false
+    this._left = true
+  }
+
+  update() {
+    super.update();
+    if (this._xDelta !== 0) {
+      this.isWalking = true;
+      setInterval(() => {
+        this.updateAnimation();
+      }, 300);
+    } else {
+      this.isWalking = false;
+    }
+
+    if (this._yDelta !== 0) {
+      this.isJumping = true;
+    } else {
+      this.isJumping = false;
+    }
+
+    if (this._x <= -45) this._x = -45;
+    if (this._x >= canvas.width - 100) this._x = canvas.width - 100;
+
+
+    if ((this._x >= 455 && this._x <= 460) || (this._x >= 670 && this._x <= 680)) {
+      if (this._y >= 168 && this._y <= 174) this._yDelta = 7;
+    }
+    if (this._x <= 455 || this._x >= 680) {
+      if (this._y < 60) {
+        this._yDelta = 7;
+      } else if (this._y >= 270) {
+        this._yDelta = 0;
+      }
+    }
+    else {
+      if (this._y < 60) {
+        this._yDelta = 7;
+      } else if (this._y >= 168 && this._y <= 174) {
+        this._yDelta = 0;
+      } else if (this._y >= 270) {
+        this._yDelta = 0;
+      }
+    }
+    if (this._y >= 267 && this._y < 269) {
+      this._audioJumpDown.currentTime = 0.5;
+      this._audioJumpDown.play();
+    }
+  }
+
+
+  stopY() {
+    if (this._y === 270) this._yDelta = 0;
+  }
+
+  jump() {
+    this._audioJump.currentTime = 0.05;
+    this._audioJump.play();
+    if (this._y > 20) this._yDelta = -10;
+  }
+
+
+  fire() {
+    const now = Date.now()
+    if (now - this._lastShootTime >= this._shootInterval && Starscount > 0) {
+      removeStar()
+      Starscount -= 1
+      const x = this._x + this._width
+      const y = this._y + this._height / 2
+      const width = 20;
+      const height = 20;
+
+      const bullet = new Bullet(x, y, width, height);
+
+      if (this._left) {
+        bullet.goLeft()
+      } else {
+        bullet.goRight();
+      }
+      data.objects.push(bullet);
+
+      this._audio.currentTime = 0;
+      this._audio.play();
+      this._lastShootTime = now;
+    }
+  }
+
+  updateAnimation() {
+    if (this._xDelta > 0) {
+      this.currentAnimationFrame = (this.currentAnimationFrame + 1) % this.walkImagesRight.length;
+    } else if (this._xDelta < 0) {
+      this.currentAnimationFrame = (this.currentAnimationFrame + 1) % this.walkImagesLeft.length;
+    }
+  }
+
+}
+
+class Enemy extends GameObj {
+  constructor(x, y, width, height) {
+    super(x, y, width, height);
+    this._speed = 3;
+    this.currentAnimationFrame = 0;
+    this.animationCounter = 0;
+    this.animationDelay = 8;
+
+    this._stabAudio = document.createElement("audio");
+    this._stabAudio.src = "Song/Die.mp3";
+
+    this._img1 = document.createElement("img");
+
+    this._img2 = document.createElement("img");
+    this._img2.src = "Photos/enemy/walk2.png";
+
+    this._img3 = document.createElement("img");
+    this._img3.src = "Photos/enemy/walk3.png";
+
+    this._audio = document.createElement("audio");
+    this._audio.src = "Song/Knife.mp3";
+
+    this.walkImages = [this._img1, this._img2, this._img3];
+  }
+
+  update() {
+    super.update();
+
+    if ((this._xDelta < 0 && this._x + this._width < 0) ||
+      (this._xDelta > 0 && this._x > canvas.width)) {
+      this.deleteMe = true;
+    }
+
+    if (this._xDelta !== 0) {
+      this.updateAnimation();
+    }
+    const hero = data.objects.filter(obj => obj instanceof Hero);
+    hero.forEach((hero) => {
+      if (intersect(this.getBoundingBox(), hero.getBoundingBox())) {
+        if (changeArmor > 0) changeArmor -= 20
+        else if (MissesCount > 0 && changeArmor === 0) {
+          MissesCount -= 1;
+          removHearth();
+        }
+        hero.changeImage("Photos/enemy/ninjadead.png");
+        this._stabAudio.currentTime = 0.1;
+        this._stabAudio.play();
+        this.die();
+      }
+    })
+  }
+  render() {
+    super.render()
+    const hero = data.objects.filter(obj => obj instanceof Hero);
+    hero.forEach((hero) => {//hero 270  250
+      if ((this._x + 50 <= hero._x || this._x - 50 >= hero._x)) {
+        this._img1.src = "Photos/enemy/walk1.png";
+        context.drawImage(this.walkImages[this.currentAnimationFrame], this._x, this._y, this._width, this._height);
+
+      }
+      else {
+        if (this._y <= hero._y) {
+          this._img1.src = "Photos/enemy/atack.png";
+          context.drawImage(this._img1, this._x, this._y, this._width, this._height);
+        }
+        else {
+          this._img1.src = "Photos/enemy/walk1.png";
+          context.drawImage(this.walkImages[this.currentAnimationFrame], this._x, this._y, this._width, this._height);
+
+        }
+      }
+
+    })
+  }
+  die() {
+    this.deleteMe = true;
+  }
+  updateAnimation() {
+    this.animationCounter++;
+    if (this.animationCounter >= this.animationDelay) {
+      this.animationCounter = 0;
+      this.currentAnimationFrame = (this.currentAnimationFrame + 1) % this.walkImages.length;
+    }
+  }
+
+}
+
 
 
 //main code
@@ -466,7 +517,7 @@ function update() {
 
   const enemies = data.objects.filter(obj => obj instanceof Enemy);
   if (enemies.length === 0) {
-    const enemie = new Enemy(canvas.width - 100, 260, 110, 110);
+    const enemie = new Enemy(canvas.width - 100, 250, 130, 130);
     enemie.goLeft();
     data.objects.push(enemie);
   }
