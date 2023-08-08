@@ -1,0 +1,37 @@
+.center-container {
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    min-height: 130vh;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+body{
+    background-image: url('fone.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+#gameBoard {
+    margin-left: 866px; /* Move the div to the left by 20px */
+    margin-top: 250px; /* Move the div down by 40px */
+    background-size: cover;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    min-width: 60vh;
+}
+
+.cell {
+    width: 123px;
+    height: 123px;
+   background-image: url('back.png'); /* If you want a background image */
+    background-position: center;
+    background-size: 100%; 
+    display: inline-block;
+    text-align: center;
+    font-size: 130px;
+    cursor: pointer;
+    border: 1px solid white; /* Add a white border around the cell */
+    box-sizing: border-box; /* Include the border in the cell's total width and height */
+    border-radius: 18px; /* Add rounded corners */
+}
+

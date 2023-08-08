@@ -298,7 +298,7 @@ class Hero extends GameObj {
       if (this._left) context.drawImage(this._imgel, this._x, this._y, this._width, this._height);
       else context.drawImage(this._imger, this._x, this._y, this._width, this._height);
     }
-    if(this._y >= 265) this.isJumpingDown = true;
+    if(this._y >= 262) this.isJumpingDown = true;
 
   }
 
@@ -354,7 +354,7 @@ class Hero extends GameObj {
         this._yDelta = 0;
       }
     }
-    if (this._y >= 266 && this._y <= 268.5) {
+    if (this._y >= 266.9 && this._y <= 269.9) {
       this._audioJumpDown.currentTime = 0.5;
       this._audioJumpDown.play();
       this.jumpDownAnimation(); 
@@ -372,7 +372,7 @@ class Hero extends GameObj {
       this.jumpDownImage();
       setTimeout(() => {
         this.standImage();
-      }, 600);
+      }, 400);
     }
   }
 
