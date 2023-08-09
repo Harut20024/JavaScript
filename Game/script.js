@@ -7,6 +7,9 @@ BackgroundImg.src = "fone.jpg";
 const cube = new Image();
 cube.src = "back.png";
 
+const matchSound = document.createElement("audio");
+matchSound.src = "match.mp3";
+
 
 class GameObj {
     constructor(x, y, width, height, imgSrc) {
@@ -54,16 +57,23 @@ let data = {
 
 function update() {
     // Check for and remove three adjacent obj1 objects
-    // checkAndRemoveThreeAdjacentObjects(obj1);
-    // checkAndRemoveThreeAdjacentObjects(obj2);
-    // checkAndRemoveThreeAdjacentObjects(obj3);
-    // checkAndRemoveThreeAdjacentObjects(obj4);
+    checkAndRemoveThreeAdjacentObjects()
+    addNewObjectsIfNeeded()
 
-
-    // Implement your other game logic here
 }
 
-
+function addNewObjectsIfNeeded() {
+    for (let col = 0; col < numCols; col++) {
+        let missingObjects = numRows - data.objects.filter(obj => obj._x === col * rectSize + 1000).length;
+        for (let i = 0; i < missingObjects; i++) {
+            const x = col * rectSize + 1000;
+            const y = -(i + 1) * rectSize; // Start above the canvas
+            const ObjectClass = getRandomObjectClass();
+            const newObj = new ObjectClass(x, y);
+            data.objects.push(newObj);
+        }
+    }
+}
 function getRandomObjectClass() {
     const objectClasses = [obj1, obj2, obj3, obj4];
     const randomIndex = Math.floor(Math.random() * objectClasses.length);
@@ -99,9 +109,7 @@ for (let row = 0; row < numRows; row++) {
     }
 }
 
-function checkAndRemoveThreeAdjacentObjects(objectType) {
-    const matchedObjects = new Set();
-
+function checkAndRemoveThreeAdjacentObjects() {
     // Check for horizontal matches
     for (let row = 0; row < numRows; row++) {
         for (let col = 0; col < numCols - 2; col++) {
@@ -110,49 +118,53 @@ function checkAndRemoveThreeAdjacentObjects(objectType) {
             const obj1C = data.objects[row * numCols + col + 2];
 
             if (
-                obj1A instanceof objectType &&
-                obj1B instanceof objectType &&
-                obj1C instanceof objectType
+                obj1A instanceof GameObj &&
+                obj1B instanceof GameObj &&
+                obj1C instanceof GameObj &&
+                obj1A.constructor === obj1B.constructor &&
+                obj1B.constructor === obj1C.constructor
             ) {
-                matchedObjects.add(obj1A);
-                matchedObjects.add(obj1B);
-                matchedObjects.add(obj1C);
+                // Remove the three adjacent objects
+                data.objects.splice(row * numCols + col, 3);
+                col += 2; // Move the column index forward by 2 after removing
+                // Call the function recursively to check for more matches
+                checkAndRemoveThreeAdjacentObjects();
+                // Play match sound
+                // matchSound.currentTime = 0;
+                matchSound.play();
             }
         }
     }
 
-    // Check for vertical matches
-    for (let col = 0; col < numCols; col++) {
-        for (let row = 0; row < numRows - 2; row++) {
-            const obj1A = data.objects[row * numCols + col];
-            const obj1B = data.objects[(row + 1) * numCols + col];
-            const obj1C = data.objects[(row + 2) * numCols + col];
+    // // Check for vertical matches
+    // for (let col = 0; col < numCols; col++) {
+    //     for (let row = 0; row < numRows - 2; row++) {
+    //         const obj2A = data.objects[row * numCols + col];
+    //         const obj2B = data.objects[(row + 1) * numCols + col];
+    //         const obj2C = data.objects[(row + 2) * numCols + col];
 
-            if (
-                obj1A instanceof objectType &&
-                obj1B instanceof objectType &&
-                obj1C instanceof objectType
-            ) {
-                matchedObjects.add(obj1A);
-                matchedObjects.add(obj1B);
-                matchedObjects.add(obj1C);
-            }
-        }
-    }
-
-    // Remove matched objects
-    matchedObjects.forEach(obj => {
-        const index = data.objects.indexOf(obj);
-        if (index !== -1) {
-            data.objects.splice(index, 1);
-        }
-    });
-
-    // Call the function recursively if matches were found and removed
-    if (matchedObjects.size > 0) {
-        checkAndRemoveThreeAdjacentObjects(objectType);
-    }
+    //         if (
+    //             obj2A instanceof GameObj &&
+    //             obj2B instanceof GameObj &&
+    //             obj2C instanceof GameObj &&
+    //             obj2A.constructor === obj2B.constructor &&
+    //             obj2B.constructor === obj2C.constructor
+    //         ) {
+    //             // Remove the three adjacent objects
+    //             data.objects.splice(row * numCols + col, 1);
+    //             data.objects.splice((row + 1) * numCols + col, 1);
+    //             data.objects.splice((row + 2) * numCols + col, 1);
+    //             // Call the function recursively to check for more matches
+    //             checkAndRemoveThreeAdjacentObjects();
+    //             // Play match sound
+    //             // matchSound.play();
+    //         }
+    //     }
+    // }
 }
+
+
+
 
 
 
@@ -169,10 +181,12 @@ function render() {
     context.drawImage(BackgroundImg, 0, 0, canvas.width, canvas.height);
 
     for (const { x, y } of objectCoords) {
+        // console.log(`Drawing cube at x: ${x}, y: ${y}`);
         context.drawImage(cube, x, y, rectSize, rectSize);
     }
 
     data.objects.forEach(obj => {
+        console.log(`Drawing ${obj._img.src} object at x: ${obj._x}, y: ${obj._y}`);
         obj.render();
     });
 }
@@ -193,34 +207,44 @@ canvas.addEventListener('click', (event) => {
         ) {
             if (!selectedObj) {
                 selectedObj = obj;
-            } else if (
-                selectedObj !== obj &&
-                selectedObj._x >= obj._x - 100 &&
-                selectedObj._x <= obj._x + obj._width + 100 &&
-                selectedObj._y >= obj._y - 100 &&
-                selectedObj._y <= obj._y + obj._height + 100
-            ) {
-                // Swap positions of selectedObj and obj
-                const tempX = selectedObj._x;
-                const tempY = selectedObj._y;
-                selectedObj._x = obj._x;
-                selectedObj._y = obj._y;
-                obj._x = tempX;
-                obj._y = tempY;
-                checkAndRemoveMatches()
-                
-                selectedObj = null; // Reset selectedObj
+            } else {
+                const dx = Math.abs(selectedObj._x - obj._x);
+                const dy = Math.abs(selectedObj._y - obj._y);
+
+                if (
+                    (dx === 0 && dy <= obj._height + 100) || // Vertical movement
+                    (dy === 0 && dx <= obj._width + 100)     // Horizontal movement
+                ) {
+                    // Swap positions of selectedObj and obj
+                    const tempX = selectedObj._x;
+                    const tempY = selectedObj._y;
+                    selectedObj._x = obj._x;
+                    selectedObj._y = obj._y;
+                    obj._x = tempX;
+                    obj._y = tempY;
+
+                    // checkAndRemoveMatches();
+
+                    selectedObj = null; // Reset selectedObj
+                } else {
+                    selectedObj = undefined;
+                }
             }
             break;
         }
     }
 });
 
+
 function loop() {
-    requestAnimationFrame(loop);
-    update();
-    render();
+    setTimeout(() => {
+        update();
+        render();
+        loop();
+    }, 100);
 }
 
-BackgroundImg.onload = loop;
-cube.onload = loop;
+
+BackgroundImg.onload = () => {
+    cube.onload = loop;
+};
