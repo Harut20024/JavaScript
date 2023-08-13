@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        const REQUIRED_ELEMENTS = ['H', 'C', 'N', 'O', 'P', 'Ca']
+
+        class Planet {
+            constructor(name, element, size, countElement, distance) {
+                this.name = name;
+                this.element = element;
+                this.size = size;
+                this.countOfElements = countElement;
+                this.distance = distance;
+            }
+        }
+
+        let str = ["OHNCCaP_225", "OHC_200", "OCa_50", "OHCCaP_400", "OUNCCaP_250"]
+
+        let a = bestPlanet(str, 50);
+
+        console.log(a);
+
+        function splitStringToNum(str) {
+            let num = "";
+            for (let i = 0; i < str.length; i++) {
+                if (!isNaN(str[i])) num += str[i];
+            }
+            return +num;
+        }
+
+        function splitStringToStr(str) {
+            let index = str.indexOf("_");
+            str = str.slice(0, index);
+            return str.split(/(?=[A-Z])/);
+        }
+
+        function bestPlanet(solarSystem, maxSize) {
+            let planets = [];
+
+            for (let index in solarSystem) {
+                let name = solarSystem[index];
+                let element = splitStringToStr(solarSystem[index]);
+                let size = splitStringToNum(solarSystem[index]);
+                let distance = maxSize - size;
+                let countOfElements = element.filter(el => REQUIRED_ELEMENTS.includes(el)).length;
+
+                planets.push(new Planet(name, element, size, countOfElements, distance));
+            }
+
+
+            const sortedAndFilteredPlanets = planets
+                .sort((a, b) => a.distance - b.distance)
+                .sort((a, b) => b.countOfElements - a.countOfElements)
+                .filter(planet => planet.distance >= 0);
+
+
+            if (sortedAndFilteredPlanets[0] === undefined || sortedAndFilteredPlanets[0].countOfElements < 5) return ''
+            else return sortedAndFilteredPlanets[0].name;
+
+        }
+
+    </script>
+</body>
+
+</html>
+<!-- 
+filter(el => el.distance >= 0)
+            .filter(el => el.countOfElements >= averageElements) -->
