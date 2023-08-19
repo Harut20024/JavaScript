@@ -20,7 +20,6 @@ Welcome to the JavaScript Learning and Personal Projects Repository! This reposi
   - [Project 2: Windows XP icon](https://github.com/Harut20024/JavaScript/tree/main/WinXp%20Icon)
   - [Project 3: Canvas projects](https://github.com/Harut20024/JavaScript/tree/main/Canvas%20JS)
   - [Project 4: Name finder](https://github.com/Harut20024/JavaScript/tree/main/finder%20with%20timer)
-  - [Project 5: Ninja Game](https://github.com/Harut20024/JavaScript/tree/main/Ninja%20Game)
 - Contributing
 - License
 
@@ -83,10 +82,6 @@ This folder contains various projects where I work with the canvas and do some a
 ### Project 4: Name finder
 
 In this project, you can write a name or a letter of a name, and it will give you back similar names. If you write the first letter of a name in lowercase, it will understand and give back the name in uppercase. The name table is refreshed only when you write, as it would be a resource-intensive project.
-
-### Project 5: Ninja Game
-
-In this project, I created a game where you play as a ninja and push fire into the knight. I used DOM and OOP standards, and I continually update this game.
 
 ## Contributing
 
